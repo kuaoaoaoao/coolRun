@@ -16,7 +16,7 @@ struct coolRunApp: App {
     var body: some Scene {
         #if os(macOS)
         Settings {
-            EmptyView()
+            SettingsView()
         }
         #else
         WindowGroup {

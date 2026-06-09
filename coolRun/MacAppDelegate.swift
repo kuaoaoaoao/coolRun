@@ -8,6 +8,7 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
     private let popover = NSPopover()
     private let viewModel = SystemMonitorViewModel()
     private let goldPriceService = GoldPriceService()
+    private var settingsWindow: NSWindow?
     private var iconTimer: Timer?
     private var goldPriceTask: Task<Void, Never>?
     private var coinPhase = 0.0
@@ -73,14 +74,47 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let menu = NSMenu()
+        let settingsItem = NSMenuItem(title: "设置", action: #selector(openSettings), keyEquivalent: ",")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+        menu.addItem(.separator())
+
         let quitItem = NSMenuItem(title: "退出程序", action: #selector(quitApplication), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
         menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height + 2), in: button)
     }
 
+    @objc private func openSettings() {
+        NSApp.activate(ignoringOtherApps: true)
+        let didOpenSettings = NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        if !didOpenSettings {
+            showFallbackSettingsWindow()
+        }
+    }
+
     @objc private func quitApplication() {
         NSApp.terminate(nil)
+    }
+
+    private func showFallbackSettingsWindow() {
+        if let settingsWindow {
+            settingsWindow.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 452, height: 332),
+            styleMask: [.titled, .closable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.center()
+        window.title = "coolRun 设置"
+        window.isReleasedWhenClosed = false
+        window.contentViewController = NSHostingController(rootView: SettingsView())
+        settingsWindow = window
+        window.makeKeyAndOrderFront(nil)
     }
 
     private func startIconAnimation() {
