@@ -6,10 +6,9 @@ import SwiftUI
 final class MacAppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private let popover = NSPopover()
-    private let contextPopover = NSPopover()
     private let viewModel = SystemMonitorViewModel()
     private let goldPriceService = GoldPriceService()
-    private var windowCloseObserver: NSObjectProtocol?
+    private var settingsWindow: NSWindow?
     private var iconTimer: Timer?
     private var goldPriceTask: Task<Void, Never>?
     private var coinPhase = 0.0
@@ -37,21 +36,6 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
         popover.contentSize = NSSize(width: 244, height: 408)
         popover.contentViewController = NSHostingController(rootView: MenuBarMonitorView())
 
-        contextPopover.behavior = .transient
-        contextPopover.animates = false
-        contextPopover.contentSize = NSSize(width: 160, height: 82)
-        contextPopover.contentViewController = NSHostingController(
-            rootView: StatusContextMenuView(
-                openSettings: { [weak self] in
-                    self?.openSettingsFromContextMenu()
-                },
-                quit: {
-                    NSApp.terminate(nil)
-                }
-            )
-        )
-
-        observeSettingsWindowLifecycle()
         viewModel.start()
         startIconAnimation()
         startGoldPriceUpdates()
@@ -60,9 +44,6 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         iconTimer?.invalidate()
         goldPriceTask?.cancel()
-        if let windowCloseObserver {
-            NotificationCenter.default.removeObserver(windowCloseObserver)
-        }
         viewModel.stop()
     }
 
@@ -91,47 +72,49 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
         if popover.isShown {
             popover.performClose(nil)
         }
-        if contextPopover.isShown {
-            contextPopover.performClose(nil)
-        } else {
-            contextPopover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-        }
+
+        let menu = NSMenu()
+        let settingsItem = NSMenuItem(title: "设置", action: #selector(openSettings), keyEquivalent: ",")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+        menu.addItem(.separator())
+
+        let quitItem = NSMenuItem(title: "退出程序", action: #selector(quitApplication), keyEquivalent: "q")
+        quitItem.target = self
+        menu.addItem(quitItem)
+        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height + 2), in: button)
     }
 
-    private func prepareToOpenSettings() {
-        popover.performClose(nil)
-        contextPopover.performClose(nil)
-
-        NSApp.setActivationPolicy(.regular)
+    @objc private func openSettings() {
         NSApp.activate(ignoringOtherApps: true)
-    }
-
-    private func openSettingsFromContextMenu() {
-        prepareToOpenSettings()
-    }
-
-    private func observeSettingsWindowLifecycle() {
-        windowCloseObserver = NotificationCenter.default.addObserver(
-            forName: NSWindow.willCloseNotification,
-            object: nil,
-            queue: .main
-        ) { _ in
-            Task { @MainActor in
-                self.hideDockIconIfNoWindowsRemain()
-            }
+        let didOpenSettings = NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        if !didOpenSettings {
+            showFallbackSettingsWindow()
         }
     }
 
-    private func hideDockIconIfNoWindowsRemain() {
-        DispatchQueue.main.async {
-            let hasVisibleWindow = NSApp.windows.contains { window in
-                window.isVisible && window.canBecomeKey
-            }
+    @objc private func quitApplication() {
+        NSApp.terminate(nil)
+    }
 
-            if !hasVisibleWindow {
-                NSApp.setActivationPolicy(.accessory)
-            }
+    private func showFallbackSettingsWindow() {
+        if let settingsWindow {
+            settingsWindow.makeKeyAndOrderFront(nil)
+            return
         }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 452, height: 332),
+            styleMask: [.titled, .closable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.center()
+        window.title = "coolRun 设置"
+        window.isReleasedWhenClosed = false
+        window.contentViewController = NSHostingController(rootView: SettingsView())
+        settingsWindow = window
+        window.makeKeyAndOrderFront(nil)
     }
 
     private func startIconAnimation() {
@@ -187,32 +170,6 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
             return "金价网络失败"
         }
         return "金价解析失败"
-    }
-}
-
-private struct StatusContextMenuView: View {
-    let openSettings: () -> Void
-    let quit: () -> Void
-
-    var body: some View {
-        VStack(spacing: 0) {
-            SettingsLink()
-                .simultaneousGesture(TapGesture().onEnded(openSettings))
-                .frame(maxWidth: .infinity, minHeight: 36)
-
-            Divider()
-
-            Button(action: quit) {
-                Label("退出程序", systemImage: "power")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .buttonStyle(.plain)
-            .padding(.horizontal, 12)
-            .frame(height: 36)
-        }
-        .padding(.vertical, 5)
-        .frame(width: 160)
-        .background(Color(nsColor: .windowBackgroundColor))
     }
 }
 
