@@ -117,21 +117,33 @@
     }
 
     .hero {
-      min-height: 92vh;
-      padding: 118px 0 80px;
+      min-height: 82vh;
+      padding: 132px 0 92px;
       position: relative;
       display: flex;
       align-items: center;
       overflow: hidden;
       color: #fff;
-      background: #101418 url("images/setting.png") center / cover no-repeat;
+      background: #101418;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: -28px;
+      background: url("images/setting.png") center / cover no-repeat;
+      filter: blur(10px);
+      opacity: 0.2;
+      transform: scale(1.04);
     }
 
     .hero::after {
       content: "";
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.64);
+      background:
+        radial-gradient(circle at 18% 28%, rgba(213, 138, 22, 0.18), transparent 26%),
+        rgba(8, 10, 13, 0.74);
       pointer-events: none;
     }
 
@@ -140,14 +152,14 @@
       z-index: 1;
       width: min(1120px, calc(100% - 40px));
       margin: 0 auto;
-      display: grid;
-      gap: 42px;
+      display: flex;
       align-items: center;
-      grid-template-columns: minmax(0, 1fr) 360px;
+      justify-content: center;
+      text-align: center;
     }
 
     .hero-copy {
-      max-width: 720px;
+      max-width: 820px;
     }
 
     .eyebrow {
@@ -167,7 +179,7 @@
     }
 
     .hero-subtitle {
-      max-width: 650px;
+      max-width: 720px;
       margin: 24px 0 0;
       color: rgba(255, 255, 255, 0.86);
       font-size: clamp(18px, 2.4vw, 24px);
@@ -178,6 +190,7 @@
       flex-wrap: wrap;
       gap: 12px;
       margin-top: 34px;
+      justify-content: center;
     }
 
     .button {
@@ -208,29 +221,14 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
-    .hero-visual {
-      justify-self: end;
-      display: grid;
-      gap: 16px;
-      width: min(100%, 360px);
-    }
-
-    .gold-shot,
-    .menu-shot {
+    .hero-price {
+      width: min(360px, 100%);
+      margin: 30px auto 0;
       overflow: hidden;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      background: rgba(255, 255, 255, 0.12);
       border: 1px solid rgba(255, 255, 255, 0.24);
-    }
-
-    .gold-shot img {
-      width: 100%;
-    }
-
-    .menu-shot {
-      width: 78%;
-      justify-self: end;
+      background: rgba(255, 255, 255, 0.12);
     }
 
     section {
@@ -298,6 +296,30 @@
       grid-template-columns: 0.7fr 1.3fr;
       gap: 26px;
       align-items: center;
+    }
+
+    .compact-showcase {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 26px;
+      max-width: 650px;
+    }
+
+    .compact-shot {
+      display: grid;
+      place-items: center;
+      min-height: 150px;
+      padding: 22px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 14px 44px rgba(22, 28, 36, 0.12);
+    }
+
+    .compact-shot img {
+      max-height: 96px;
+      width: auto;
     }
 
     .monitor-frame,
@@ -432,23 +454,14 @@
 
       .hero {
         min-height: auto;
-        padding: 104px 0 58px;
+        padding: 110px 0 64px;
       }
 
-      .hero-inner,
       .showcase-grid,
+      .compact-showcase,
       .feature-grid,
       .steps {
         grid-template-columns: 1fr;
-      }
-
-      .hero-visual {
-        justify-self: start;
-        width: min(100%, 320px);
-      }
-
-      .menu-shot {
-        justify-self: start;
       }
 
       .download-panel {
@@ -481,17 +494,12 @@
           <p class="eyebrow">macOS Menu Bar Monitor</p>
           <h1>coolRun</h1>
           <p class="hero-subtitle">轻量的 macOS 菜单栏系统监控与金价工具。实时查看 CPU、内存、储存、电池、网络状态，以及浙商银行积存金价格。</p>
+          <div class="hero-price">
+            <img src="images/money.png" alt="菜单栏实时金价">
+          </div>
           <div class="hero-actions">
             <a class="button primary" href="https://github.com/kuaoaoaoao/coolRun/releases">下载最新版</a>
             <a class="button secondary" href="https://github.com/kuaoaoaoao/coolRun">查看源码</a>
-          </div>
-        </div>
-        <div class="hero-visual" aria-label="coolRun 界面截图">
-          <div class="gold-shot">
-            <img src="images/money.png" alt="菜单栏实时金价">
-          </div>
-          <div class="menu-shot">
-            <img src="images/menu.png" alt="右键快捷菜单">
           </div>
         </div>
       </div>
@@ -537,6 +545,20 @@
         <div class="section-heading">
           <h2>清爽的弹窗与设置界面</h2>
           <p>左键查看系统状态，右键进入设置或退出。界面保持小巧，不打断当前工作流。</p>
+        </div>
+        <div class="compact-showcase">
+          <div>
+            <div class="compact-shot">
+              <img src="images/money.png" alt="菜单栏金价截图">
+            </div>
+            <p class="caption">菜单栏金价</p>
+          </div>
+          <div>
+            <div class="compact-shot">
+              <img src="images/menu.png" alt="右键快捷菜单截图">
+            </div>
+            <p class="caption">右键快捷菜单</p>
+          </div>
         </div>
         <div class="showcase-grid">
           <div>
