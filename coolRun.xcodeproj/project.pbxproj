@@ -6,10 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		SPARKLEFRAMEWORKSBUILDFILE /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = SPARKLEPRODUCTDEPENDENCY /* Sparkle */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXFileReference section */
 		8FCE25482FBE97330023FC83 /* coolRun.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = coolRun.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -27,7 +23,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				SPARKLEFRAMEWORKSBUILDFILE /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,9 +64,6 @@
 				8FCE254A2FBE97330023FC83 /* coolRun */,
 			);
 			name = coolRun;
-			packageProductDependencies = (
-				SPARKLEPRODUCTDEPENDENCY /* Sparkle */,
-			);
 			productName = coolRun;
 			productReference = 8FCE25482FBE97330023FC83 /* coolRun.app */;
 			productType = "com.apple.product-type.application";
@@ -100,9 +92,6 @@
 			);
 			mainGroup = 8FCE253F2FBE97330023FC83;
 			minimizedProjectReferenceProxies = 1;
-			packageReferences = (
-				SPARKLEPACKAGEREFERENCE /* XCRemoteSwiftPackageReference "Sparkle" */,
-			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8FCE25492FBE97330023FC83 /* Products */;
 			projectDirPath = "";
@@ -260,9 +249,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_SUEnableInstallerLauncherService = YES;
-				INFOPLIST_KEY_SUFeedURL = "https://github.com/kuaoaoaoao/coolRun/releases/download/appcast/appcast.xml";
-				INFOPLIST_KEY_SUPublicEDKey = REPLACE_WITH_SPARKLE_PUBLIC_ED_KEY;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -306,9 +293,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_SUEnableInstallerLauncherService = YES;
-				INFOPLIST_KEY_SUFeedURL = "https://github.com/kuaoaoaoao/coolRun/releases/download/appcast/appcast.xml";
-				INFOPLIST_KEY_SUPublicEDKey = REPLACE_WITH_SPARKLE_PUBLIC_ED_KEY;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -362,25 +347,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		SPARKLEPACKAGEREFERENCE /* XCRemoteSwiftPackageReference "Sparkle" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sparkle-project/Sparkle";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.6.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		SPARKLEPRODUCTDEPENDENCY /* Sparkle */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = SPARKLEPACKAGEREFERENCE /* XCRemoteSwiftPackageReference "Sparkle" */;
-			productName = Sparkle;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8FCE25402FBE97330023FC83 /* Project object */;
 }

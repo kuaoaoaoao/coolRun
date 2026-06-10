@@ -232,7 +232,7 @@ private struct ProgressPill: View {
         GeometryReader { proxy in
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 2, style: .continuous)
-                    .fill(Color.black.opacity(0.08))
+                    .fill(Color(nsColor: .separatorColor).opacity(0.28))
                 RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .fill(tint)
                     .frame(width: max(4, proxy.size.width * min(max(value, 0), 1)))
@@ -243,11 +243,11 @@ private struct ProgressPill: View {
 }
 
 enum AppTheme {
-    static let background = Color(red: 0.91, green: 0.92, blue: 0.94)
-    static let panel = Color(red: 0.97, green: 0.95, blue: 0.96)
-    static let border = Color.black.opacity(0.12)
-    static let separator = Color.black.opacity(0.12)
-    static let icon = Color(red: 0.32, green: 0.30, blue: 0.32)
+    static let background = Color(nsColor: .windowBackgroundColor)
+    static let panel = Color(nsColor: .controlBackgroundColor)
+    static let border = Color(nsColor: .separatorColor).opacity(0.8)
+    static let separator = Color(nsColor: .separatorColor).opacity(0.7)
+    static let icon = Color(nsColor: .secondaryLabelColor)
 }
 
 private extension Double {
