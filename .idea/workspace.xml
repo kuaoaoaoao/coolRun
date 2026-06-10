@@ -4,18 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f0efe66-915b-427a-af1c-f91fc20a98d8" name="更改" comment="feat(app): 实现系统监控主界面和状态栏功能&#10;&#10;- 添加 ContentView 和 MonitorPanel 组件展示系统性能数据&#10;- 实现 CPU、内存、存储、电池和网络的指标显示模块&#10;- 设计对应的条形图、小进度条和数据展示控件&#10;- 开发 MacAppDelegate 支持菜单栏图标动画及弹出窗口&#10;- 集成 GoldPriceService 实时获取并显示黄金价格&#10;- 实现状态栏菜单包含设置和退出功能&#10;- 完善图标绘制逻辑实现动态金币旋转效果&#10;- 添加对设置窗口的弹窗支持及窗口管理&#10;- 添加沙盒权限设置文件以支持网络访问&#10;- 配置项目资产目录结构与图标资源文件&#10;- 编写 MenuBarMonitorView 用于状态栏弹窗内容展示">
+    <list default="true" id="3f0efe66-915b-427a-af1c-f91fc20a98d8" name="更改" comment="docs(readme): 更新README文档，完善项目描述与使用说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/coolRun/AppVersion.swift" beforeDir="false" afterPath="$PROJECT_DIR$/coolRun/AppVersion.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/coolRun/MacAppDelegate.swift" beforeDir="false" afterPath="$PROJECT_DIR$/coolRun/MacAppDelegate.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/coolRun/SettingsView.swift" beforeDir="false" afterPath="$PROJECT_DIR$/coolRun/SettingsView.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/create-dmg.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/create-dmg.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+      <option value="repository" />
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -129,7 +131,15 @@
       <option name="project" value="LOCAL" />
       <updated>1781009490620</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="docs(readme): 更新README文档，完善项目描述与使用说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验">
+      <option name="closed" value="true" />
+      <created>1781069134195</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1781069134195</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -151,6 +161,7 @@
     <MESSAGE value="feat(app): 添加 macOS 设置窗口与 Sparkle 更新支持&#10;&#10;- 新增 SettingsView 及其内容，包括关于页和版本更新页&#10;- 添加 macOS 应用入口 Settings 视图支持，默认显示 SettingsView&#10;- MacAppDelegate 中添加设置菜单项及打开设置窗口逻辑&#10;- 实现设置窗口的回退显示，支持窗口复用与展示&#10;- 引入 Sparkle Swift 包，并添加 SparkleUpdater 管理检查更新功能&#10;- 配置项目相关的 Entitlements 和 Info.plist 支持 Sparkle 更新&#10;- 添加 Sparkle 更新配置文档说明更新流程与密钥生成&#10;- 新建 AppVersion 结构体获取应用版本信息，用于显示在设置界面" />
     <MESSAGE value="feat(menu): 添加系统监控菜单栏视图和主程序入口&#10;&#10;- 实现ContentView及相关子视图，实现CPU、内存、存储、电池和网络信息展示&#10;- 设计自定义组件，如MetricSection、MiniBar和ProgressPill以丰富UI展示效果&#10;- 新增MacAppDelegate管理菜单栏状态项、弹出窗口和金币动画&#10;- 实现金价服务GoldPriceService，异步获取并显示最新金价信息&#10;- 添加MenuBarMonitorView作为菜单栏弹出内容的视图&#10;- 创建应用主入口coolRunApp.swift，区分macOS和其他平台的界面展示&#10;- 删除无用资源及配置文件，保持项目清洁&#10;- 新增AppVersion结构体，方便获取应用版本信息" />
     <MESSAGE value="feat(app): 实现系统监控主界面和状态栏功能&#10;&#10;- 添加 ContentView 和 MonitorPanel 组件展示系统性能数据&#10;- 实现 CPU、内存、存储、电池和网络的指标显示模块&#10;- 设计对应的条形图、小进度条和数据展示控件&#10;- 开发 MacAppDelegate 支持菜单栏图标动画及弹出窗口&#10;- 集成 GoldPriceService 实时获取并显示黄金价格&#10;- 实现状态栏菜单包含设置和退出功能&#10;- 完善图标绘制逻辑实现动态金币旋转效果&#10;- 添加对设置窗口的弹窗支持及窗口管理&#10;- 添加沙盒权限设置文件以支持网络访问&#10;- 配置项目资产目录结构与图标资源文件&#10;- 编写 MenuBarMonitorView 用于状态栏弹窗内容展示" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(app): 实现系统监控主界面和状态栏功能&#10;&#10;- 添加 ContentView 和 MonitorPanel 组件展示系统性能数据&#10;- 实现 CPU、内存、存储、电池和网络的指标显示模块&#10;- 设计对应的条形图、小进度条和数据展示控件&#10;- 开发 MacAppDelegate 支持菜单栏图标动画及弹出窗口&#10;- 集成 GoldPriceService 实时获取并显示黄金价格&#10;- 实现状态栏菜单包含设置和退出功能&#10;- 完善图标绘制逻辑实现动态金币旋转效果&#10;- 添加对设置窗口的弹窗支持及窗口管理&#10;- 添加沙盒权限设置文件以支持网络访问&#10;- 配置项目资产目录结构与图标资源文件&#10;- 编写 MenuBarMonitorView 用于状态栏弹窗内容展示" />
+    <MESSAGE value="docs(readme): 更新README文档，完善项目描述与使用说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验" />
+    <option name="LAST_COMMIT_MESSAGE" value="docs(readme): 更新README文档，完善项目描述与使用说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验" />
   </component>
 </project>

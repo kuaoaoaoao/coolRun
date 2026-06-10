@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="coolRun 是一款轻量的 macOS 菜单栏系统监控工具，可显示实时金价、CPU、内存、储存、电池和网络状态。">
+  <title>coolRun - macOS 菜单栏系统监控与金价工具</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f4ef;
+      --surface: #ffffff;
+      --surface-soft: #f1f5f9;
+      --text: #17202a;
+      --muted: #5f6b7a;
+      --line: rgba(23, 32, 42, 0.14);
+      --gold: #d58a16;
+      --blue: #1473e6;
+      --green: #0f8f68;
+      --shadow: 0 24px 80px rgba(22, 28, 36, 0.18);
+      --radius: 8px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111315;
+        --surface: #1b1f24;
+        --surface-soft: #242a31;
+        --text: #f4f7fb;
+        --muted: #a9b4c2;
+        --line: rgba(244, 247, 251, 0.16);
+        --shadow: 0 24px 80px rgba(0, 0, 0, 0.36);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .site-header {
+      position: fixed;
+      z-index: 20;
+      top: 0;
+      left: 0;
+      right: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(15, 17, 20, 0.72);
+      backdrop-filter: blur(18px);
+      color: #fff;
+    }
+
+    .nav {
+      width: min(1120px, calc(100% - 40px));
+      height: 64px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 750;
+      letter-spacing: 0;
+    }
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: #151c28;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .brand-mark img {
+      width: 26px;
+      height: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 14px;
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+    }
+
+    .hero {
+      min-height: 92vh;
+      padding: 118px 0 80px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      color: #fff;
+      background: #101418 url("images/setting.png") center / cover no-repeat;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.64);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+      display: grid;
+      gap: 42px;
+      align-items: center;
+      grid-template-columns: minmax(0, 1fr) 360px;
+    }
+
+    .hero-copy {
+      max-width: 720px;
+    }
+
+    .eyebrow {
+      margin: 0 0 16px;
+      color: #ffd27a;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(48px, 9vw, 96px);
+      line-height: 0.94;
+      letter-spacing: 0;
+    }
+
+    .hero-subtitle {
+      max-width: 650px;
+      margin: 24px 0 0;
+      color: rgba(255, 255, 255, 0.86);
+      font-size: clamp(18px, 2.4vw, 24px);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 34px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      font-size: 15px;
+      font-weight: 700;
+      transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button.primary {
+      background: #fff;
+      border-color: #fff;
+      color: #15191f;
+    }
+
+    .button.secondary {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .hero-visual {
+      justify-self: end;
+      display: grid;
+      gap: 16px;
+      width: min(100%, 360px);
+    }
+
+    .gold-shot,
+    .menu-shot {
+      overflow: hidden;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+    }
+
+    .gold-shot img {
+      width: 100%;
+    }
+
+    .menu-shot {
+      width: 78%;
+      justify-self: end;
+    }
+
+    section {
+      padding: 86px 0;
+    }
+
+    .section-inner {
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .section-heading {
+      display: grid;
+      gap: 10px;
+      max-width: 760px;
+      margin-bottom: 32px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: clamp(30px, 4.6vw, 48px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .section-heading p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .feature {
+      padding: 22px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .feature strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 17px;
+    }
+
+    .feature p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .showcase {
+      background: var(--surface-soft);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: 0.7fr 1.3fr;
+      gap: 26px;
+      align-items: center;
+    }
+
+    .monitor-frame,
+    .settings-frame {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .monitor-frame {
+      max-width: 340px;
+      justify-self: center;
+    }
+
+    .settings-frame {
+      justify-self: stretch;
+    }
+
+    .caption {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      counter-reset: step;
+    }
+
+    .step {
+      counter-increment: step;
+      min-height: 160px;
+      padding: 22px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .step::before {
+      content: counter(step);
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      margin-bottom: 16px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .note {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--gold);
+      background: var(--surface);
+      border-radius: var(--radius);
+      color: var(--muted);
+    }
+
+    .download {
+      background: #17202a;
+      color: #fff;
+    }
+
+    .download .section-heading p {
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .download-panel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 28px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .download-panel p {
+      margin: 6px 0 0;
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    footer {
+      padding: 32px 0;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .footer-inner {
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 14px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer-links a {
+      color: var(--text);
+    }
+
+    @media (max-width: 840px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 104px 0 58px;
+      }
+
+      .hero-inner,
+      .showcase-grid,
+      .feature-grid,
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-visual {
+        justify-self: start;
+        width: min(100%, 320px);
+      }
+
+      .menu-shot {
+        justify-self: start;
+      }
+
+      .download-panel {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="主导航">
+      <a class="brand" href="#">
+        <span class="brand-mark"><img src="images/money.png" alt=""></span>
+        <span>coolRun</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">功能</a>
+        <a href="#showcase">界面</a>
+        <a href="#install">安装</a>
+        <a href="https://github.com/kuaoaoaoao/coolRun">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow">macOS Menu Bar Monitor</p>
+          <h1>coolRun</h1>
+          <p class="hero-subtitle">轻量的 macOS 菜单栏系统监控与金价工具。实时查看 CPU、内存、储存、电池、网络状态，以及浙商银行积存金价格。</p>
+          <div class="hero-actions">
+            <a class="button primary" href="https://github.com/kuaoaoaoao/coolRun/releases">下载最新版</a>
+            <a class="button secondary" href="https://github.com/kuaoaoaoao/coolRun">查看源码</a>
+          </div>
+        </div>
+        <div class="hero-visual" aria-label="coolRun 界面截图">
+          <div class="gold-shot">
+            <img src="images/money.png" alt="菜单栏实时金价">
+          </div>
+          <div class="menu-shot">
+            <img src="images/menu.png" alt="右键快捷菜单">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2>把常看的状态放进菜单栏</h2>
+          <p>coolRun 专注于日常高频信息：系统负载、设备状态和实时金价。打开即用，不需要配置 API Key。</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature">
+            <strong>金币动态指示</strong>
+            <p>CPU 占用越高，菜单栏金币旋转越快，负载变化一眼可见。</p>
+          </article>
+          <article class="feature">
+            <strong>系统监控面板</strong>
+            <p>集中展示 CPU、内存、储存、电池和网络状态，点击菜单栏即可展开。</p>
+          </article>
+          <article class="feature">
+            <strong>实时金价</strong>
+            <p>菜单栏直接显示浙商银行积存金价格，单位为人民币/克。</p>
+          </article>
+          <article class="feature">
+            <strong>设置与更新</strong>
+            <p>设置页提供项目主页和 Releases 下载入口，方便手动更新。</p>
+          </article>
+          <article class="feature">
+            <strong>深色模式</strong>
+            <p>使用 macOS 系统自适应颜色，浅色和深色模式都清晰可读。</p>
+          </article>
+          <article class="feature">
+            <strong>开源免费</strong>
+            <p>基于 MIT License 开源，可以自由查看、修改和分发。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="showcase" id="showcase">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2>清爽的弹窗与设置界面</h2>
+          <p>左键查看系统状态，右键进入设置或退出。界面保持小巧，不打断当前工作流。</p>
+        </div>
+        <div class="showcase-grid">
+          <div>
+            <div class="monitor-frame">
+              <img src="images/monitoring.png" alt="系统监控面板截图">
+            </div>
+            <p class="caption">系统监控面板</p>
+          </div>
+          <div>
+            <div class="settings-frame">
+              <img src="images/setting.png" alt="设置页面截图">
+            </div>
+            <p class="caption">设置页面</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="install">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2>安装与使用</h2>
+          <p>从 GitHub Releases 下载应用，拖入 Applications 文件夹后启动即可。</p>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <strong>下载安装包</strong>
+            <p>进入 Releases 页面，下载最新的 coolRun.dmg 或 coolRun.zip。</p>
+          </article>
+          <article class="step">
+            <strong>安装应用</strong>
+            <p>打开 DMG，将 coolRun.app 拖入 Applications 文件夹。</p>
+          </article>
+          <article class="step">
+            <strong>开始使用</strong>
+            <p>启动后在菜单栏找到金币图标，左键查看监控，右键打开快捷菜单。</p>
+          </article>
+        </div>
+        <p class="note">如果 macOS 提示无法验证开发者，可以右键点击 coolRun.app，选择“打开”，再在系统弹窗中确认。</p>
+      </div>
+    </section>
+
+    <section class="download">
+      <div class="section-inner">
+        <div class="download-panel">
+          <div>
+            <h2>准备试试 coolRun？</h2>
+            <p>前往 GitHub Releases 下载最新版，或查看源码参与改进。</p>
+          </div>
+          <div class="hero-actions">
+            <a class="button primary" href="https://github.com/kuaoaoaoao/coolRun/releases">下载最新版</a>
+            <a class="button secondary" href="https://github.com/kuaoaoaoao/coolRun">GitHub 仓库</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>© 2026 kuaoaoaoao. Released under the MIT License.</span>
+      <div class="footer-links">
+        <a href="https://github.com/kuaoaoaoao/coolRun">源码</a>
+        <a href="https://github.com/kuaoaoaoao/coolRun/releases">下载</a>
+        <a href="https://github.com/kuaoaoaoao/coolRun/issues">反馈</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
