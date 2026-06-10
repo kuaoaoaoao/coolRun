@@ -6,43 +6,60 @@
 # 用法:
 #   ./scripts/create-dmg.sh /path/to/coolRun.app
 #
-# 如果不传参数，默认在当前目录下查找 coolRun.app
+# 如果不传参数，自动查找最新的 Xcode 构建产物:
+#   coolRun YYYY-MM-DD HH-MM-SS/coolRun.app
 #
 
 set -euo pipefail
 
-APP_PATH="${1:-coolRun.app}"
-VOLUME_NAME="coolRun"
-DMG_NAME="coolRun.dmg"
-DMG_DIR="coolRun-dmg-tmp"
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
-# 检查 app 是否存在
+# 查找最新的 Xcode 构建产物
+find_latest_app() {
+  local latest_dir
+  latest_dir=$(ls -dt "$SCRIPT_DIR"/coolRun\ 2* 2>/dev/null | head -1)
+  if [ -n "$latest_dir" ] && [ -d "$latest_dir/coolRun.app" ]; then
+    echo "$latest_dir/coolRun.app"
+  fi
+}
+
+APP_PATH="${1:-}"
+if [ -z "$APP_PATH" ]; then
+  APP_PATH=$(find_latest_app)
+  if [ -z "$APP_PATH" ]; then
+    echo "❌ 找不到构建产物"
+    echo "用法: $0 /path/to/coolRun.app"
+    echo "或在 Xcode 构建后直接运行 $0"
+    exit 1
+  fi
+  echo "🔍 自动找到: $APP_PATH"
+fi
+
 if [ ! -d "$APP_PATH" ]; then
   echo "❌ 找不到 $APP_PATH"
   echo "用法: $0 /path/to/coolRun.app"
   exit 1
 fi
 
+VOLUME_NAME="coolRun"
+DMG_NAME="coolRun.dmg"
+DMG_DIR=$(mktemp -d)
+
 echo "📦 正在制作 DMG..."
 
-# 清理旧的临时目录和 dmg
-rm -rf "$DMG_DIR"
-rm -f "$DMG_NAME"
-
-# 创建临时目录并复制 app
-mkdir -p "$DMG_DIR"
+# 复制 app 和 Applications 快捷方式
 cp -R "$APP_PATH" "$DMG_DIR/"
 ln -s /Applications "$DMG_DIR/Applications"
 
-# 创建 DMG
+# 创建 DMG（输出到脚本所在项目根目录）
 hdiutil create \
   -volname "$VOLUME_NAME" \
   -srcfolder "$DMG_DIR" \
   -ov \
   -format UDZO \
-  "$DMG_NAME"
+  "$SCRIPT_DIR/$DMG_NAME"
 
-# 清理临时目录
+# 清理
 rm -rf "$DMG_DIR"
 
-echo "✅ 已生成: $(pwd)/$DMG_NAME"
+echo "✅ 已生成: $SCRIPT_DIR/$DMG_NAME"

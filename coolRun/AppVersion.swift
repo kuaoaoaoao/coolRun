@@ -13,6 +13,6 @@ struct AppVersion: Equatable {
     }
 
     var displayText: String {
-        "\(marketingVersion) (\(buildVersion))"
+        marketingVersion
     }
 }

@@ -198,7 +198,9 @@ private struct StatusContextMenuView: View {
         VStack(spacing: 0) {
             SettingsLink()
                 .simultaneousGesture(TapGesture().onEnded(openSettings))
-                .frame(maxWidth: .infinity, minHeight: 36)
+                .buttonStyle(.plain)
+                .padding(.horizontal, 12)
+                .frame(maxWidth: .infinity, minHeight: 36, alignment: .leading)
 
             Divider()
 
