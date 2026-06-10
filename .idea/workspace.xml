@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f0efe66-915b-427a-af1c-f91fc20a98d8" name="更改" comment="docs(readme): 更新README文档完善项目描述与使用说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验&#10;- 新增完整的HTML格式项目主页，优化展示与导航&#10;- 添加.gitignore配置，排除.DS_Store文件">
+    <list default="true" id="3f0efe66-915b-427a-af1c-f91fc20a98d8" name="更改" comment="docs(readme): 更新README文档完善项目描述与使用说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验&#10;- 新增完整的HTML格式项目主页，优化展示与导航&#10;- 添加.gitignore配置，排除.DS_Store文件&#10;- 说明若遇到“文件已损坏”提示，需通过命令修复权限问题">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -148,7 +147,15 @@
       <option name="project" value="LOCAL" />
       <updated>1781070079692</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="docs(readme): 更新README文档完善项目描述与使用说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验&#10;- 新增完整的HTML格式项目主页，优化展示与导航&#10;- 添加.gitignore配置，排除.DS_Store文件&#10;- 说明若遇到“文件已损坏”提示，需通过命令修复权限问题">
+      <option name="closed" value="true" />
+      <created>1781071433029</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1781071433029</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -172,6 +179,7 @@
     <MESSAGE value="feat(app): 实现系统监控主界面和状态栏功能&#10;&#10;- 添加 ContentView 和 MonitorPanel 组件展示系统性能数据&#10;- 实现 CPU、内存、存储、电池和网络的指标显示模块&#10;- 设计对应的条形图、小进度条和数据展示控件&#10;- 开发 MacAppDelegate 支持菜单栏图标动画及弹出窗口&#10;- 集成 GoldPriceService 实时获取并显示黄金价格&#10;- 实现状态栏菜单包含设置和退出功能&#10;- 完善图标绘制逻辑实现动态金币旋转效果&#10;- 添加对设置窗口的弹窗支持及窗口管理&#10;- 添加沙盒权限设置文件以支持网络访问&#10;- 配置项目资产目录结构与图标资源文件&#10;- 编写 MenuBarMonitorView 用于状态栏弹窗内容展示" />
     <MESSAGE value="docs(readme): 更新README文档，完善项目描述与使用说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验" />
     <MESSAGE value="docs(readme): 更新README文档完善项目描述与使用说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验&#10;- 新增完整的HTML格式项目主页，优化展示与导航&#10;- 添加.gitignore配置，排除.DS_Store文件" />
-    <option name="LAST_COMMIT_MESSAGE" value="docs(readme): 更新README文档完善项目描述与使用说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验&#10;- 新增完整的HTML格式项目主页，优化展示与导航&#10;- 添加.gitignore配置，排除.DS_Store文件" />
+    <MESSAGE value="docs(readme): 更新README文档完善项目描述与使用说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验&#10;- 新增完整的HTML格式项目主页，优化展示与导航&#10;- 添加.gitignore配置，排除.DS_Store文件&#10;- 说明若遇到“文件已损坏”提示，需通过命令修复权限问题" />
+    <option name="LAST_COMMIT_MESSAGE" value="docs(readme): 更新README文档完善项目描述与使用说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验&#10;- 新增完整的HTML格式项目主页，优化展示与导航&#10;- 添加.gitignore配置，排除.DS_Store文件&#10;- 说明若遇到“文件已损坏”提示，需通过命令修复权限问题" />
   </component>
 </project>
