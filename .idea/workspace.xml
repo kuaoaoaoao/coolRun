@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f0efe66-915b-427a-af1c-f91fc20a98d8" name="更改" comment="docs(readme): 更新README文档完善项目描述并补充修复说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验&#10;- 新增完整的HTML格式项目主页，优化展示与导航&#10;- 添加.gitignore配置，排除.DS_Store文件&#10;- 说明若遇到“文件已损坏”提示，需通过命令修复权限问题&#10;- 优化首页样式及内容排版细节，调整色彩方案和字体样式&#10;- 修改导航栏样式，重构英雄区和功能展示区布局&#10;- 增加响应式支持，兼顾不同屏幕尺寸表现&#10;- 添加Star History图表展示项目动态&#10;- 调整Xcode项目macOS部署目标版本为15.0">
+    <list default="true" id="3f0efe66-915b-427a-af1c-f91fc20a98d8" name="更改" comment="chore(app): 更新macOS应用配置与签名信息&#10;&#10;- 添加CodeResources代码签名资源文件&#10;- 新增Info.plist配置，设置应用基本属性和系统版本要求&#10;- 添加PkgInfo文件，定义应用包类型&#10;- 调整Xcode项目部署目标版本为macOS 15.0&#10;- 优化首页样式及内容排版，增强响应式支持&#10;- 修改导航栏样式并重构英雄区和功能展示区布局&#10;- 添加Star History图表展示项目动态">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/coolRun.dmg" beforeDir="false" afterPath="$PROJECT_DIR$/coolRun.dmg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,21 +50,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/kuao/Documents/work/ownerWork/XCodeWork/coolRun/coolRun&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/kuao/Documents/work/ownerWork/XCodeWork/coolRun/coolRun",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="coolRun" />
@@ -99,7 +98,9 @@
       <workItem from="1781007005761" duration="1541000" />
       <workItem from="1781060421497" duration="324000" />
       <workItem from="1781168349073" duration="355000" />
-      <workItem from="1781226229536" duration="1130000" />
+      <workItem from="1781226229536" duration="1952000" />
+      <workItem from="1781228998772" duration="598000" />
+      <workItem from="1781230974558" duration="1774000" />
     </task>
     <task id="LOCAL-00001" summary="feat(app): 添加系统监控面板和电池管理新功能&#10;&#10;- 实现包含CPU、内存、存储、电池和网络信息的系统监控面板&#10;- 新增电池电量指示视图，支持不同显示样式和充电状态&#10;- 集成电池服务，支持通过XPC获取和管理电池及适配器数据&#10;- 添加充电管理器，自动控制电池充电行为并监听系统设置变化&#10;- 在macOS应用入口处添加AppDelegate支持和设置窗口占位&#10;- 更新AppIcon资源，支持不同尺寸和平台的图标文件&#10;- 引入高级设置界面，允许用户切换硬件电池百分比显示选项&#10;- 优化项目配置，添加代码签名权限(Entitlements)支持&#10;- 增加多处UI细节和动画优雅展示电池及系统状态信息">
       <option name="closed" value="true" />
@@ -173,7 +174,23 @@
       <option name="project" value="LOCAL" />
       <updated>1781168691006</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="chore(app): 更新macOS应用配置与签名信息&#10;&#10;- 添加CodeResources代码签名资源文件&#10;- 新增Info.plist配置，设置应用基本属性和系统版本要求&#10;- 添加PkgInfo文件，定义应用包类型&#10;- 调整Xcode项目部署目标版本为macOS 15.0&#10;- 优化首页样式及内容排版，增强响应式支持&#10;- 修改导航栏样式并重构英雄区和功能展示区布局&#10;- 添加Star History图表展示项目动态">
+      <option name="closed" value="true" />
+      <created>1781228011445</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1781228011445</updated>
+    </task>
+    <task id="LOCAL-00011" summary="chore(app): 更新macOS应用配置与签名信息&#10;&#10;- 添加CodeResources代码签名资源文件&#10;- 新增Info.plist配置，设置应用基本属性和系统版本要求&#10;- 添加PkgInfo文件，定义应用包类型&#10;- 调整Xcode项目部署目标版本为macOS 15.0&#10;- 优化首页样式及内容排版，增强响应式支持&#10;- 修改导航栏样式并重构英雄区和功能展示区布局&#10;- 添加Star History图表展示项目动态">
+      <option name="closed" value="true" />
+      <created>1781232216320</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1781232216320</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -200,6 +217,7 @@
     <MESSAGE value="docs(readme): 更新README文档完善项目描述与使用说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验&#10;- 新增完整的HTML格式项目主页，优化展示与导航&#10;- 添加.gitignore配置，排除.DS_Store文件&#10;- 说明若遇到“文件已损坏”提示，需通过命令修复权限问题" />
     <MESSAGE value="docs(readme): 更新README文档完善项目描述并补充修复说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验&#10;- 新增完整的HTML格式项目主页，优化展示与导航&#10;- 添加.gitignore配置，排除.DS_Store文件&#10;- 说明若遇到“文件已损坏”提示，需通过命令修复权限问题&#10;&#10;docs(website): 优化首页样式及内容排版细节&#10;&#10;- 调整整体色彩方案，优化亮暗模式配色变量&#10;- 更新字体样式、字号及权重，提升视觉层次感&#10;- 修改导航栏类名及样式，优化布局和间距&#10;- 重构英雄区布局，增加状态轨道和" />
     <MESSAGE value="docs(readme): 更新README文档完善项目描述并补充修复说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验&#10;- 新增完整的HTML格式项目主页，优化展示与导航&#10;- 添加.gitignore配置，排除.DS_Store文件&#10;- 说明若遇到“文件已损坏”提示，需通过命令修复权限问题&#10;- 优化首页样式及内容排版细节，调整色彩方案和字体样式&#10;- 修改导航栏样式，重构英雄区和功能展示区布局&#10;- 增加响应式支持，兼顾不同屏幕尺寸表现&#10;- 添加Star History图表展示项目动态&#10;- 调整Xcode项目macOS部署目标版本为15.0" />
-    <option name="LAST_COMMIT_MESSAGE" value="docs(readme): 更新README文档完善项目描述并补充修复说明&#10;&#10;- 扩充项目功能介绍，突出菜单栏常驻和系统监控面板功能&#10;- 优化使用和安装说明，增加从GitHub Releases安装指引&#10;- 重新整理目录结构说明，补充关键文件描述&#10;- 说明项目架构和核心技术细节&#10;- 补充隐私说明及贡献指南&#10;- 移除Sparkle自动更新描述，转为手动更新说明&#10;- 添加打包发布和代码签名相关说明，提升用户体验&#10;- 新增完整的HTML格式项目主页，优化展示与导航&#10;- 添加.gitignore配置，排除.DS_Store文件&#10;- 说明若遇到“文件已损坏”提示，需通过命令修复权限问题&#10;- 优化首页样式及内容排版细节，调整色彩方案和字体样式&#10;- 修改导航栏样式，重构英雄区和功能展示区布局&#10;- 增加响应式支持，兼顾不同屏幕尺寸表现&#10;- 添加Star History图表展示项目动态&#10;- 调整Xcode项目macOS部署目标版本为15.0" />
+    <MESSAGE value="chore(app): 更新macOS应用配置与签名信息&#10;&#10;- 添加CodeResources代码签名资源文件&#10;- 新增Info.plist配置，设置应用基本属性和系统版本要求&#10;- 添加PkgInfo文件，定义应用包类型&#10;- 调整Xcode项目部署目标版本为macOS 15.0&#10;- 优化首页样式及内容排版，增强响应式支持&#10;- 修改导航栏样式并重构英雄区和功能展示区布局&#10;- 添加Star History图表展示项目动态" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore(app): 更新macOS应用配置与签名信息&#10;&#10;- 添加CodeResources代码签名资源文件&#10;- 新增Info.plist配置，设置应用基本属性和系统版本要求&#10;- 添加PkgInfo文件，定义应用包类型&#10;- 调整Xcode项目部署目标版本为macOS 15.0&#10;- 优化首页样式及内容排版，增强响应式支持&#10;- 修改导航栏样式并重构英雄区和功能展示区布局&#10;- 添加Star History图表展示项目动态" />
   </component>
 </project>

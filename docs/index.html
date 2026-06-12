@@ -3,8 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="coolRun 是一款轻量的 macOS 菜单栏系统监控工具，可显示实时金价、CPU、内存、储存、电池和网络状态。">
-  <title>coolRun - macOS 菜单栏系统监控与金价工具</title>
+  <meta name="description" content="coolRun 把实时金价和 Mac 状态放进菜单栏。点击即可查看 CPU、内存、储存、电池、网络、温度、风扇和运行时间。">
+  <meta property="og:title" content="coolRun - 金价和 Mac 状态，放进菜单栏">
+  <meta property="og:description" content="轻量 macOS 菜单栏工具：实时金价、系统监控、CPU 负载金币动画，SwiftUI 开源。">
+  <meta property="og:image" content="https://kuaoaoaoao.github.io/coolRun/images/dark-main.png">
+  <meta property="og:type" content="website">
+  <title>coolRun - 金价和 Mac 状态，放进菜单栏</title>
   <style>
     :root {
       color-scheme: light dark;
@@ -89,13 +93,6 @@
       gap: 10px;
       font-weight: 760;
       font-size: 18px;
-    }
-
-    .brand img {
-      width: 34px;
-      height: 22px;
-      object-fit: cover;
-      border-radius: 5px;
     }
 
     .nav-links {
@@ -189,7 +186,13 @@
       width: 220px;
       border: 1px solid rgba(255, 255, 255, 0.22);
       border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.96);
       box-shadow: 0 18px 58px rgba(0, 0, 0, 0.32);
+    }
+
+    .price-chip img {
+      width: 100%;
+      height: auto;
     }
 
     .eyebrow {
@@ -222,6 +225,15 @@
       margin-top: 24px;
       color: rgba(255, 255, 255, 0.86);
       font-size: 22px;
+    }
+
+    .hero-statement {
+      max-width: 860px;
+      margin: 10px 0 0;
+      color: #fff;
+      font-size: 34px;
+      line-height: 1.18;
+      font-weight: 760;
     }
 
     .hero-actions {
@@ -369,6 +381,35 @@
       font-size: 15px;
     }
 
+    .audience {
+      padding-top: 0;
+    }
+
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .audience-item {
+      padding: 20px;
+      background: var(--panel);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+    }
+
+    .audience-item strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 17px;
+    }
+
+    .audience-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
     .showcase {
       background: var(--panel-2);
       border-top: 1px solid var(--rule);
@@ -380,6 +421,25 @@
       grid-template-columns: 320px minmax(0, 1fr);
       gap: 24px;
       align-items: start;
+    }
+
+    .demo-panel {
+      max-width: 760px;
+      margin: 0 auto 28px;
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .demo-panel video {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: block;
+      border-radius: 6px;
+      background: #11161d;
+      object-fit: cover;
     }
 
     .screenshot-stack {
@@ -564,11 +624,16 @@
         font-size: 18px;
       }
 
+      .hero-statement {
+        font-size: 26px;
+      }
+
       .section-heading h2 {
         font-size: 32px;
       }
 
       .telemetry-strip,
+      .audience-grid,
       .feature-grid,
       .screenshot-grid,
       .install-grid {
@@ -594,11 +659,11 @@
   <header class="topbar">
     <nav class="nav" aria-label="主导航">
       <a class="brand" href="#">
-        <img src="images/money.png" alt="">
         <span>coolRun</span>
       </a>
       <div class="nav-links">
-        <a href="#features">功能</a>
+        <a href="#features">亮点</a>
+        <a href="#audience">适合谁</a>
         <a href="#showcase">界面</a>
         <a href="#install">安装</a>
         <a href="https://github.com/kuaoaoaoao/coolRun">GitHub</a>
@@ -616,9 +681,10 @@
           </span>
           <span class="rail-line"></span>
         </div>
-        <p class="eyebrow">macOS menu bar monitor</p>
+        <p class="eyebrow">gold price + mac vitals</p>
         <h1>coolRun</h1>
-        <p class="hero-copy">轻量的 macOS 菜单栏系统监控与金价工具。实时查看 CPU、内存、储存、电池、网络状态，以及浙商银行积存金价格。</p>
+        <p class="hero-statement">金价和 Mac 状态，放进菜单栏。</p>
+        <p class="hero-copy">实时查看浙商银行积存金价格，也能一眼看到 CPU、内存、储存、电池、网络、温度、风扇和运行时间。金币图标会跟着 CPU 负载加速旋转，电脑忙不忙，不点开也知道。</p>
         <div class="hero-actions">
           <a class="button primary" href="https://github.com/kuaoaoaoao/coolRun/releases">下载最新版</a>
           <a class="button secondary" href="https://github.com/kuaoaoaoao/coolRun">查看源码</a>
@@ -631,23 +697,23 @@
         <div class="telemetry-strip">
           <div class="telemetry-item">
             <code>MENUBAR</code>
-            <strong>菜单栏常驻</strong>
-            <span>不占 Dock，不打断当前工作。</span>
+            <strong>常驻菜单栏</strong>
+            <span>不占 Dock，不打断工作流。</span>
           </div>
           <div class="telemetry-item">
             <code>GOLD</code>
-            <strong>实时金价</strong>
-            <span>人民币/克展示，打开即用。</span>
+            <strong>金价一眼看见</strong>
+            <span>人民币/克展示，打开就能用。</span>
           </div>
           <div class="telemetry-item">
-            <code>SYSTEM</code>
-            <strong>系统监控</strong>
-            <span>CPU、内存、储存、电池、网络。</span>
+            <code>LOAD</code>
+            <strong>金币会转</strong>
+            <span>CPU 越忙，菜单栏金币转得越快。</span>
           </div>
           <div class="telemetry-item">
-            <code>OPEN</code>
-            <strong>MIT 开源</strong>
-            <span>源码公开，可自由学习和修改。</span>
+            <code>SWIFTUI</code>
+            <strong>原生小工具</strong>
+            <span>SwiftUI + AppKit，MIT 开源。</span>
           </div>
         </div>
       </div>
@@ -656,8 +722,8 @@
     <section id="features">
       <div class="section-inner">
         <div class="section-heading">
-          <h2>把 Mac 的状态压缩成一个小入口</h2>
-          <p>coolRun 的重点不是做一个复杂仪表盘，而是把每天高频查看的信息放到最顺手的位置。</p>
+          <h2>扫一眼就够，不需要打开大面板</h2>
+          <p>coolRun 的重点不是堆满图表，而是把每天高频查看的信息放到最顺手的位置。</p>
         </div>
         <div class="feature-grid">
           <article class="feature">
@@ -667,8 +733,8 @@
           </article>
           <article class="feature">
             <span class="feature-label">RAM</span>
-            <strong>系统监控面板</strong>
-            <p>集中展示 CPU、内存、储存、电池和网络状态，信息密度高但不拥挤。</p>
+            <strong>紧凑监控面板</strong>
+            <p>集中展示 CPU、内存、储存、电池、网络、温度、风扇和运行时间。</p>
           </article>
           <article class="feature">
             <span class="feature-label">¥/g</span>
@@ -682,7 +748,7 @@
           </article>
           <article class="feature">
             <span class="feature-label">REL</span>
-            <strong>GitHub 下载更新</strong>
+            <strong>GitHub Releases 分发</strong>
             <p>设置页可打开 Releases，用户下载新版后替换旧版本即可。</p>
           </article>
           <article class="feature">
@@ -694,11 +760,38 @@
       </div>
     </section>
 
+    <section class="audience" id="audience">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2>适合把菜单栏当仪表盘的人</h2>
+          <p>它不会替代专业监控软件，更像一个轻量的状态入口：平时安静待着，需要时点一下。</p>
+        </div>
+        <div class="audience-grid">
+          <article class="audience-item">
+            <strong>每天顺手看金价</strong>
+            <p>把积存金价格固定在菜单栏，不用再打开网页或银行页面反复查。</p>
+          </article>
+          <article class="audience-item">
+            <strong>想知道 Mac 是否在高负载</strong>
+            <p>风扇响、发热、卡顿时，点开就能看到 CPU、内存、温度和风扇状态。</p>
+          </article>
+          <article class="audience-item">
+            <strong>喜欢原生、克制的小工具</strong>
+            <p>小窗口、毛玻璃、浅深色自适应，信息够用就收住。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <section class="showcase" id="showcase">
       <div class="section-inner">
         <div class="section-heading center">
           <h2>界面克制，信息直接</h2>
-          <p>左键展开监控，右键打开设置或退出。主界面保持小巧，只展示你真正需要的信息。</p>
+          <p>左键展开监控，右键打开设置或退出。主界面保持小巧，适合停在菜单栏里长期使用。</p>
+        </div>
+        <div class="demo-panel">
+          <video src="images/coolRunShowDemo.mp4" autoplay muted loop playsinline poster="images/light-montring.png" aria-label="coolRun 动态演示"></video>
+          <p class="caption">动态演示</p>
         </div>
         <div class="screenshot-grid">
           <div class="screenshot-stack">
@@ -751,7 +844,7 @@
             <p>启动后在菜单栏找到金币图标，左键查看监控，右键打开快捷菜单。</p>
           </article>
         </div>
-        <p class="note">如果 macOS 提示无法验证开发者，可以右键点击 coolRun.app，选择“打开”，再在系统弹窗中确认。</p>
+        <p class="note">如果 macOS 提示无法验证开发者，可以右键点击 coolRun.app，选择“打开”，再在系统弹窗中确认。若提示文件已损坏，通常是因为应用暂未公证，可参考 README 中的安装说明处理。</p>
       </div>
     </section>
 
@@ -759,7 +852,7 @@
       <div class="section-inner">
         <div class="download-box">
           <div>
-            <h2>准备试试 coolRun？</h2>
+            <h2>让菜单栏多一个有用的小入口</h2>
             <p>前往 GitHub Releases 下载最新版，或查看源码参与改进。</p>
           </div>
           <div class="hero-actions">
