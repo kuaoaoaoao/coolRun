@@ -48,8 +48,28 @@ The app uses SwiftUI with an `NSApplicationDelegateAdaptor` pattern to bridge Ap
 - System sampling uses low-level C APIs (Darwin, IOKit, not SystemConfiguration) — `SystemSampler` is the only file that touches these.
 - Battery state has cross-platform support (`#if os(macOS)` / `#elseif canImport(UIKit)`) though the app is currently macOS-only.
 - App Sandbox is enabled with `com.apple.security.network.client` entitlement for the gold price API call.
-- Deployment target is macOS 26.4. Swift 5.0 (uses Swift 5.9+ `@Observable` macro).
+- Deployment target is macOS 15.0. Swift Language Version setting is 5.0 (uses Swift 5.9+ `@Observable` macro via the Observation framework).
 - Sparkle auto-update was removed; updates are manual via GitHub Releases. See `SPARKLE_SETUP.md` if re-enabling.
+
+## Features
+
+### System Monitoring
+- **CPU**: Core count, real-time usage, dynamic usage bar with health color coding
+- **Memory**: Used memory, total memory, memory pressure
+- **Storage**: Used space, available space, usage progress
+- **Battery**: Level, charging status, low power mode
+- **Network**: Connection status, local IP, active interface count, upload/download speed
+- **Uptime**: System uptime display (days, hours, minutes)
+- **Temperature**: CPU and GPU temperature via SMC sensors
+- **Fans**: Fan speed (RPM), fan count, speed gauge with color coding
+
+### UI Features
+- **Frosted Glass Effect**: Modern translucent background using `NSVisualEffectView` with `.hudWindow` material
+- **Collapsible Sections**: Click any section to expand/collapse detailed content, default is collapsed
+- **Trend Charts**: Sparkline charts showing CPU, memory, and network speed history (last 60 samples)
+- **Health Color Coding**: CPU and memory usage indicators change color based on load (green < 60%, orange 60-85%, red > 85%)
+- **Click to Copy**: Click any metric row to copy its value to clipboard with visual feedback
+- **Compact Design**: Smaller icons (14pt), tighter spacing, more information density
 
 ## Conventions
 

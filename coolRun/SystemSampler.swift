@@ -2,6 +2,7 @@ import Foundation
 import Darwin
 
 #if os(macOS)
+import IOKit
 import IOKit.ps
 #elseif canImport(UIKit)
 import UIKit
@@ -9,15 +10,29 @@ import UIKit
 
 final class SystemSampler {
     private var previousCPUTicks: [UInt32]?
+    private var previousNetworkBytes: (download: UInt64, upload: UInt64)?
+    private var previousSampleTime: Date?
+    private let smcReader = SMCReader()
 
     func sample() -> SystemSnapshot {
-        SystemSnapshot(
+        let now = Date()
+        let network = sampleNetwork()
+        let uptime = sampleUptime()
+        let temperature = sampleTemperature()
+        let fans = sampleFans()
+
+        defer { previousSampleTime = now }
+
+        return SystemSnapshot(
             cpu: sampleCPU(),
             memory: sampleMemory(),
             storage: sampleStorage(),
             battery: sampleBattery(),
-            network: sampleNetwork(),
-            updatedAt: Date()
+            network: network,
+            uptime: uptime,
+            temperature: temperature,
+            fans: fans,
+            updatedAt: now
         )
     }
 
@@ -177,10 +192,114 @@ final class SystemSampler {
 
     private func sampleNetwork() -> NetworkMetrics {
         let status = currentNetworkStatus()
+        let (downloadSpeed, uploadSpeed) = calculateNetworkSpeed()
+
         return NetworkMetrics(
             activeInterfaceCount: status.activeInterfaceCount,
-            primaryAddress: status.primaryAddress
+            primaryAddress: status.primaryAddress,
+            downloadSpeed: downloadSpeed,
+            uploadSpeed: uploadSpeed
         )
+    }
+
+    private func calculateNetworkSpeed() -> (download: UInt64, upload: UInt64) {
+        var interfaces: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&interfaces) == 0, let interfaces else {
+            return (0, 0)
+        }
+        defer { freeifaddrs(interfaces) }
+
+        var totalDownload: UInt64 = 0
+        var totalUpload: UInt64 = 0
+        var cursor: UnsafeMutablePointer<ifaddrs>? = interfaces
+
+        while let interface = cursor {
+            defer { cursor = interface.pointee.ifa_next }
+
+            let flags = Int32(interface.pointee.ifa_flags)
+            guard flags & IFF_UP == IFF_UP, flags & IFF_LOOPBACK == 0 else {
+                continue
+            }
+
+            let name = String(cString: interface.pointee.ifa_name)
+            // Skip virtual interfaces
+            guard !name.hasPrefix("lo") && !name.hasPrefix("utun") && !name.hasPrefix("awdl") else {
+                continue
+            }
+
+            if let address = interface.pointee.ifa_addr,
+               address.pointee.sa_family == UInt8(AF_LINK),
+               let data = interface.pointee.ifa_data?.assumingMemoryBound(to: if_data.self) {
+                totalDownload += UInt64(data.pointee.ifi_ibytes)
+                totalUpload += UInt64(data.pointee.ifi_obytes)
+            }
+        }
+
+        let now = Date()
+
+        if let previous = previousNetworkBytes, let previousTime = previousSampleTime {
+            let elapsed = now.timeIntervalSince(previousTime)
+            guard elapsed > 0 else {
+                return (0, 0)
+            }
+
+            let downloadDiff = totalDownload >= previous.download ? totalDownload - previous.download : 0
+            let uploadDiff = totalUpload >= previous.upload ? totalUpload - previous.upload : 0
+
+            previousNetworkBytes = (totalDownload, totalUpload)
+
+            return (
+                download: UInt64(Double(downloadDiff) / elapsed),
+                upload: UInt64(Double(uploadDiff) / elapsed)
+            )
+        }
+
+        previousNetworkBytes = (totalDownload, totalUpload)
+        return (0, 0)
+    }
+
+    private func sampleUptime() -> UptimeMetrics {
+        UptimeMetrics(uptime: ProcessInfo.processInfo.systemUptime)
+    }
+
+    private func sampleTemperature() -> TemperatureMetrics {
+        guard smcReader.available else {
+            return TemperatureMetrics()
+        }
+
+        let cpuTemp = smcReader.readCPUTemperature()
+        let gpuTemp = smcReader.readGPUTemperature()
+        let allSensors = smcReader.readTemperatures()
+
+        // 转换为 SensorReading 数组
+        let sensors = allSensors.map { reading in
+            SensorReading(name: reading.name, temperature: reading.temperature)
+        }
+
+        return TemperatureMetrics(
+            cpuTemperature: cpuTemp,
+            gpuTemperature: gpuTemp,
+            sensors: sensors
+        )
+    }
+
+    private func sampleFans() -> FanMetrics {
+        guard smcReader.available else {
+            return FanMetrics(isAvailable: false)
+        }
+
+        let fanReadings = smcReader.readFans()
+
+        let fans = fanReadings.map { reading in
+            FanInfo(
+                name: reading.name,
+                currentRPM: reading.currentRPM,
+                minRPM: reading.minRPM,
+                maxRPM: reading.maxRPM
+            )
+        }
+
+        return FanMetrics(fans: fans, isAvailable: true)
     }
 
     private func currentNetworkStatus() -> NetworkStatus {

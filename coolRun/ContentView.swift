@@ -2,87 +2,232 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var viewModel = SystemMonitorViewModel()
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        MonitorPanel(snapshot: viewModel.snapshot)
-            .padding(10)
-            .background(AppTheme.background)
-            .onAppear { viewModel.start() }
-            .onDisappear { viewModel.stop() }
+        MonitorPanel(
+            snapshot: viewModel.snapshot,
+            cpuHistory: viewModel.cpuHistory,
+            memoryHistory: viewModel.memoryHistory,
+            downloadHistory: viewModel.downloadHistory,
+            uploadHistory: viewModel.uploadHistory,
+            cpuTempHistory: viewModel.cpuTempHistory,
+            gpuTempHistory: viewModel.gpuTempHistory
+        )
+        .padding(8)
+        .background {
+            ZStack {
+                VisualEffectBlur(material: colorScheme == .dark ? .hudWindow : .menu, blendingMode: .behindWindow)
+                if colorScheme == .light {
+                    Color.white.opacity(0.3)
+                } else {
+                    Color.black.opacity(0.2)
+                }
+            }
+        }
+        .onAppear { viewModel.start() }
+        .onDisappear { viewModel.stop() }
     }
 }
 
 struct MonitorPanel: View {
     let snapshot: SystemSnapshot
+    var cpuHistory: MetricHistory = MetricHistory()
+    var memoryHistory: MetricHistory = MetricHistory()
+    var downloadHistory: MetricHistory = MetricHistory()
+    var uploadHistory: MetricHistory = MetricHistory()
+    var cpuTempHistory: MetricHistory = MetricHistory()
+    var gpuTempHistory: MetricHistory = MetricHistory()
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         VStack(spacing: 0) {
-            CPUSection(metrics: snapshot.cpu)
+            CPUSection(
+                metrics: snapshot.cpu,
+                temperature: snapshot.temperature,
+                history: cpuHistory
+            )
             Separator()
-            MemorySection(metrics: snapshot.memory)
+            MemorySection(
+                metrics: snapshot.memory,
+                history: memoryHistory
+            )
             Separator()
             StorageSection(metrics: snapshot.storage)
             Separator()
             BatterySection(metrics: snapshot.battery)
             Separator()
-            NetworkSection(metrics: snapshot.network)
+            NetworkSection(
+                metrics: snapshot.network,
+                downloadHistory: downloadHistory,
+                uploadHistory: uploadHistory
+            )
+            Separator()
+            FanSection(fans: snapshot.fans)
+            Separator()
+            UptimeSection(metrics: snapshot.uptime)
         }
-        .padding(.vertical, 10)
-        .background(AppTheme.panel)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .padding(.vertical, 6)
+        .background {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(colorScheme == .dark ? Color.black.opacity(0.3) : Color.white.opacity(0.5))
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(AppTheme.border, lineWidth: 1)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(colorScheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.08), lineWidth: 0.5)
         }
-        .shadow(color: .black.opacity(0.16), radius: 5, y: 2)
+        .shadow(color: colorScheme == .dark ? .black.opacity(0.2) : .black.opacity(0.08), radius: 10, y: 4)
     }
 }
 
-private struct CPUSection: View {
-    let metrics: CPUMetrics
+// MARK: - 可折叠的 Section 组件
+
+private struct CollapsibleSection<Header: View, Content: View>: View {
+    let icon: String
+    let title: String
+    let value: String
+    var healthColor: Color? = nil
+    @ViewBuilder var header: () -> Header
+    @ViewBuilder var content: () -> Content
+
+    @State private var isExpanded = false
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        MetricSection(icon: "cpu", title: "CPU", value: metrics.usage.percentText) {
-            MetricRow(label: "核心", value: "\(metrics.coreCount)")
-            MetricRow(label: "占用", value: metrics.usage.percentText)
-            MiniBar(value: metrics.usage, tint: .blue)
-                .padding(.top, 3)
+        VStack(spacing: 0) {
+            // 标题行 - 整行可点击
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(healthColor ?? AppTheme.icon(colorScheme))
+                    .frame(width: 20)
+
+                Text(title)
+                    .foregroundStyle(AppTheme.textSecondary(colorScheme))
+                    .font(.system(size: 11, weight: .medium))
+
+                Spacer()
+
+                header()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(AppTheme.textSecondary(colorScheme).opacity(0.6))
+                    .rotationEffect(.degrees(isExpanded ? 90 : 0))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isExpanded.toggle()
+                }
+            }
+
+            // 展开内容
+            if isExpanded {
+                VStack(spacing: 2) {
+                    content()
+                }
+                .padding(.horizontal, 12)
+                .padding(.bottom, 8)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+    }
+}
+
+// MARK: - 各个监控区域
+
+private struct CPUSection: View {
+    let metrics: CPUMetrics
+    let temperature: TemperatureMetrics
+    var history: MetricHistory = MetricHistory()
+
+    var body: some View {
+        CollapsibleSection(
+            icon: "cpu",
+            title: "CPU",
+            value: metrics.usage.percentText,
+            healthColor: AppTheme.healthColor(for: metrics.usage)
+        ) {
+            // 标题行右侧内容
+            HStack(spacing: 6) {
+                MiniBar(value: metrics.usage, tint: AppTheme.healthColor(for: metrics.usage))
+                    .frame(width: 40, height: 10)
+                Text(metrics.usage.percentText)
+                    .foregroundStyle(AppTheme.healthColor(for: metrics.usage))
+                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
+            }
+        } content: {
+            MetricRow(label: "核心数", value: "\(metrics.coreCount)")
+            if let temp = temperature.cpuTemperature {
+                MetricRow(label: "CPU 温度", value: String(format: "%.1f°C", temp))
+            }
+            if let gpuTemp = temperature.gpuTemperature {
+                MetricRow(label: "GPU 温度", value: String(format: "%.1f°C", gpuTemp))
+            }
+            SparklineChart(values: history.values, color: AppTheme.healthColor(for: metrics.usage))
+                .frame(height: 20)
+                .padding(.top, 2)
         }
     }
 }
 
 private struct MemorySection: View {
     let metrics: MemoryMetrics
+    var history: MetricHistory = MetricHistory()
 
     var body: some View {
-        MetricSection(icon: "memorychip", title: "内存", value: metrics.usage.percentText) {
+        CollapsibleSection(
+            icon: "memorychip",
+            title: "内存",
+            value: metrics.usage.percentText,
+            healthColor: AppTheme.healthColor(for: metrics.usage)
+        ) {
+            HStack(spacing: 6) {
+                MiniBar(value: metrics.usage, tint: AppTheme.healthColor(for: metrics.usage))
+                    .frame(width: 40, height: 10)
+                Text(metrics.usage.percentText)
+                    .foregroundStyle(AppTheme.healthColor(for: metrics.usage))
+                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
+            }
+        } content: {
             MetricRow(label: "已用", value: metrics.used.memoryText)
             MetricRow(label: "总量", value: metrics.total.memoryText)
             MetricRow(label: "压力", value: memoryPressureText)
+            SparklineChart(values: history.values, color: AppTheme.healthColor(for: metrics.usage))
+                .frame(height: 20)
+                .padding(.top, 2)
         }
     }
 
     private var memoryPressureText: String {
         switch metrics.usage {
-        case 0..<0.6:
-            "轻"
-        case 0..<0.82:
-            "中"
-        default:
-            "高"
+        case 0..<0.6: "轻"
+        case 0..<0.82: "中"
+        default: "高"
         }
     }
 }
 
 private struct StorageSection: View {
     let metrics: StorageMetrics
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        MetricSection(icon: "externaldrive", title: "储存", value: "\(metrics.usage.percentText) 已使用") {
+        CollapsibleSection(icon: "externaldrive", title: "储存", value: metrics.usage.percentText) {
+            HStack(spacing: 6) {
+                ProgressPill(value: metrics.usage, tint: .blue)
+                    .frame(width: 40, height: 4)
+                Text(metrics.usage.percentText)
+                    .foregroundStyle(AppTheme.textPrimary(colorScheme))
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+            }
+        } content: {
             MetricRow(label: "已用", value: metrics.used.storageText)
             MetricRow(label: "可用", value: metrics.available.storageText)
-            ProgressPill(value: metrics.usage, tint: .blue)
-                .padding(.top, 4)
         }
     }
 }
@@ -91,7 +236,11 @@ private struct BatterySection: View {
     let metrics: BatteryMetrics
 
     var body: some View {
-        MetricSection(icon: batteryIcon, title: "电池", value: levelText) {
+        CollapsibleSection(icon: batteryIcon, title: "电池", value: levelText) {
+            Text(levelText)
+                .foregroundStyle(batteryColor)
+                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+        } content: {
             MetricRow(label: "状态", value: metrics.state.rawValue)
             MetricRow(label: "低电量模式", value: metrics.isLowPowerModeEnabled ? "开启" : "关闭")
         }
@@ -102,27 +251,51 @@ private struct BatterySection: View {
         return level.percentText
     }
 
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var batteryColor: Color {
+        guard let level = metrics.level else { return AppTheme.textSecondary(colorScheme) }
+        if metrics.state == .charging { return .blue }
+        return level < 0.2 ? AppTheme.critical : AppTheme.healthy
+    }
+
     private var batteryIcon: String {
         switch metrics.state {
-        case .charging:
-            "battery.100.bolt"
-        case .full:
-            "battery.100"
-        case .unplugged:
-            "battery.50"
-        case .noBattery, .unknown:
-            "battery.0"
+        case .charging: "battery.100.bolt"
+        case .full: "battery.100"
+        case .unplugged: "battery.50"
+        case .noBattery, .unknown: "battery.0"
         }
     }
 }
 
 private struct NetworkSection: View {
     let metrics: NetworkMetrics
+    var downloadHistory: MetricHistory = MetricHistory()
+    var uploadHistory: MetricHistory = MetricHistory()
 
     var body: some View {
-        MetricSection(icon: "network", title: "网络", value: networkName) {
+        CollapsibleSection(icon: "network", title: "网络", value: networkName) {
+            if metrics.downloadSpeed > 0 || metrics.uploadSpeed > 0 {
+                Text("↓\(formatSpeed(metrics.downloadSpeed))")
+                    .foregroundStyle(.blue)
+                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+            }
+        } content: {
             MetricRow(label: "本地 IP", value: localAddressText)
-            MetricRow(label: "接口", value: metrics.activeInterfaceCount > 0 ? "\(metrics.activeInterfaceCount) 个活动接口" : "--")
+            MetricRow(label: "接口", value: metrics.activeInterfaceCount > 0 ? "\(metrics.activeInterfaceCount) 个" : "--")
+            if metrics.downloadSpeed > 0 || metrics.uploadSpeed > 0 {
+                MetricRow(label: "↓ 下载", value: formatSpeed(metrics.downloadSpeed))
+                MetricRow(label: "↑ 上传", value: formatSpeed(metrics.uploadSpeed))
+                DualSparklineChart(
+                    values1: downloadHistory.values,
+                    values2: uploadHistory.values,
+                    color1: .blue,
+                    color2: .green
+                )
+                .frame(height: 20)
+                .padding(.top, 2)
+            }
         }
     }
 
@@ -133,66 +306,220 @@ private struct NetworkSection: View {
     private var localAddressText: String {
         metrics.primaryAddress ?? "--"
     }
-}
 
-private struct MetricSection<Content: View>: View {
-    let icon: String
-    let title: String
-    let value: String
-    @ViewBuilder var content: Content
-
-    var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 25, weight: .regular))
-                .foregroundStyle(AppTheme.icon)
-                .frame(width: 42)
-
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text("\(title):")
-                        .foregroundStyle(.secondary)
-                    Text(value)
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.72)
-                }
-                .font(.system(size: 16, weight: .medium))
-
-                content
-            }
+    private func formatSpeed(_ bytesPerSecond: UInt64) -> String {
+        if bytesPerSecond < 1024 {
+            return "\(bytesPerSecond) B/s"
+        } else if bytesPerSecond < 1024 * 1024 {
+            return String(format: "%.1f KB/s", Double(bytesPerSecond) / 1024.0)
+        } else {
+            return String(format: "%.1f MB/s", Double(bytesPerSecond) / (1024.0 * 1024.0))
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
     }
 }
+
+private struct FanSection: View {
+    let fans: FanMetrics
+
+    var body: some View {
+        CollapsibleSection(icon: "fan.fill", title: "风扇", value: fanSpeedText) {
+            if let firstFan = fans.fans.first {
+                Text(firstFan.formatted)
+                    .foregroundStyle(fanColor)
+                    .font(.system(size: 11, weight: .medium, design: .monospaced))
+            }
+        } content: {
+            if fans.isAvailable && !fans.fans.isEmpty {
+                ForEach(fans.fans) { fan in
+                    HStack {
+                        MetricRow(label: fan.name, value: fan.formatted)
+                        FanGauge(percentage: fan.percentage, color: fanColor)
+                            .frame(width: 30, height: 4)
+                    }
+                }
+            } else if fans.isAvailable {
+                MetricRow(label: "状态", value: "未检测到风扇")
+            } else {
+                MetricRow(label: "状态", value: "SMC 不可用")
+            }
+        }
+    }
+
+    private var fanSpeedText: String {
+        if let firstFan = fans.fans.first {
+            return firstFan.formatted
+        }
+        return "--"
+    }
+
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var fanColor: Color {
+        guard let maxPercentage = fans.fans.map(\.percentage).max() else {
+            return AppTheme.icon(colorScheme)
+        }
+        switch maxPercentage {
+        case ..<0.5: return AppTheme.healthy
+        case ..<0.8: return AppTheme.warning
+        default: return AppTheme.critical
+        }
+    }
+}
+
+private struct UptimeSection: View {
+    let metrics: UptimeMetrics
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        CollapsibleSection(icon: "clock", title: "运行时间", value: metrics.formatted) {
+            Text(metrics.formatted)
+                .foregroundStyle(AppTheme.textPrimary(colorScheme).opacity(0.8))
+                .font(.system(size: 11, weight: .medium, design: .monospaced))
+        } content: {
+            MetricRow(label: "已运行", value: metrics.formatted)
+        }
+    }
+}
+
+// MARK: - 基础组件
 
 private struct MetricRow: View {
     let label: String
     let value: String
+    @State private var isCopied = false
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         HStack(spacing: 6) {
-            Text("\(label):")
-                .foregroundStyle(.secondary)
+            Text(label)
+                .foregroundStyle(AppTheme.textSecondary(colorScheme))
+                .font(.system(size: 10, weight: .medium))
+            Spacer(minLength: 4)
             Text(value)
-                .foregroundStyle(.primary)
+                .foregroundStyle(isCopied ? AppTheme.healthy : AppTheme.textPrimary(colorScheme).opacity(0.85))
+                .font(.system(size: 10, weight: .regular, design: .monospaced))
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
-            Spacer(minLength: 0)
         }
-        .font(.system(size: 12, weight: .regular))
+        .padding(.vertical, 1)
+        .onTapGesture { copyToClipboard() }
+        .help("点击复制")
+    }
+
+    private func copyToClipboard() {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString("\(label): \(value)", forType: .string)
+        withAnimation(.easeInOut(duration: 0.3)) { isCopied = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(.easeInOut(duration: 0.3)) { isCopied = false }
+        }
     }
 }
 
 private struct Separator: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Rectangle()
-            .fill(AppTheme.separator)
-            .frame(height: 1)
-            .padding(.horizontal, 14)
+            .fill(AppTheme.separator(colorScheme))
+            .frame(height: 0.5)
+            .padding(.horizontal, 12)
     }
 }
+
+// MARK: - 趋势图表
+
+private struct SparklineChart: View {
+    let values: [Double]
+    var color: Color = .blue
+    var showGradient: Bool = true
+
+    var body: some View {
+        Canvas { context, size in
+            guard values.count >= 2 else { return }
+
+            let maxValue = values.max() ?? 1.0
+            let minValue = values.min() ?? 0.0
+            let range = maxValue - minValue
+            let normalizedMax = range > 0 ? range : 1.0
+
+            let stepX = size.width / CGFloat(values.count - 1)
+            let padding: CGFloat = 1
+            let drawHeight = size.height - padding * 2
+
+            var path = Path()
+            for (index, value) in values.enumerated() {
+                let x = CGFloat(index) * stepX
+                let normalized = (value - minValue) / normalizedMax
+                let y = size.height - padding - CGFloat(normalized) * drawHeight
+                if index == 0 { path.move(to: CGPoint(x: x, y: y)) }
+                else { path.addLine(to: CGPoint(x: x, y: y)) }
+            }
+
+            if showGradient {
+                var fillPath = path
+                fillPath.addLine(to: CGPoint(x: size.width, y: size.height))
+                fillPath.addLine(to: CGPoint(x: 0, y: size.height))
+                fillPath.closeSubpath()
+                let gradient = Gradient(colors: [color.opacity(0.25), color.opacity(0.02)])
+                context.fill(fillPath, with: .linearGradient(gradient, startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: 0, y: size.height)))
+            }
+
+            context.stroke(path, with: .color(color), lineWidth: 1.2)
+
+            if let lastValue = values.last {
+                let lastX = size.width
+                let normalized = (lastValue - minValue) / normalizedMax
+                let lastY = size.height - padding - CGFloat(normalized) * drawHeight
+                let pointRect = CGRect(x: lastX - 2, y: lastY - 2, width: 4, height: 4)
+                context.fill(Path(ellipseIn: pointRect), with: .color(color))
+            }
+        }
+    }
+}
+
+private struct DualSparklineChart: View {
+    let values1: [Double]
+    let values2: [Double]
+    var color1: Color = .blue
+    var color2: Color = .green
+
+    var body: some View {
+        Canvas { context, size in
+            let allValues = values1 + values2
+            guard allValues.count >= 2 else { return }
+
+            let maxValue = allValues.max() ?? 1.0
+            let minValue = allValues.min() ?? 0.0
+            let range = maxValue - minValue
+            let normalizedMax = range > 0 ? range : 1.0
+            let padding: CGFloat = 1
+            let drawHeight = size.height - padding * 2
+
+            if values1.count >= 2 {
+                drawLine(context: context, size: size, values: values1, color: color1, minValue: minValue, normalizedMax: normalizedMax, padding: padding, drawHeight: drawHeight)
+            }
+            if values2.count >= 2 {
+                drawLine(context: context, size: size, values: values2, color: color2, minValue: minValue, normalizedMax: normalizedMax, padding: padding, drawHeight: drawHeight)
+            }
+        }
+    }
+
+    private func drawLine(context: GraphicsContext, size: CGSize, values: [Double], color: Color, minValue: Double, normalizedMax: Double, padding: CGFloat, drawHeight: CGFloat) {
+        let stepX = size.width / CGFloat(values.count - 1)
+        var path = Path()
+        for (index, value) in values.enumerated() {
+            let x = CGFloat(index) * stepX
+            let normalized = (value - minValue) / normalizedMax
+            let y = size.height - padding - CGFloat(normalized) * drawHeight
+            if index == 0 { path.move(to: CGPoint(x: x, y: y)) }
+            else { path.addLine(to: CGPoint(x: x, y: y)) }
+        }
+        context.stroke(path, with: .color(color), lineWidth: 1.2)
+    }
+}
+
+// MARK: - 进度条组件
 
 private struct MiniBar: View {
     let value: Double
@@ -203,52 +530,116 @@ private struct MiniBar: View {
             Path { path in
                 let width = proxy.size.width
                 let height = proxy.size.height
-                let columns = 28
-
+                let columns = 16
                 for index in 0..<columns {
                     let phase = Double(index) / Double(columns)
-                    let dynamic = 0.28 + abs(sin((phase + value) * .pi * 2.2)) * 0.72
-                    let barHeight = max(2, height * dynamic * max(0.2, value))
+                    let dynamic = 0.3 + abs(sin((phase + value) * .pi * 2.2)) * 0.7
+                    let barHeight = max(1.5, height * dynamic * max(0.2, value))
                     let x = width * Double(index) / Double(columns)
-                    path.addRect(CGRect(
-                        x: x,
-                        y: height - barHeight,
-                        width: max(2, width / Double(columns) - 2),
-                        height: barHeight
-                    ))
+                    path.addRect(CGRect(x: x, y: height - barHeight, width: max(1.5, width / Double(columns) - 1.5), height: barHeight))
                 }
             }
-            .fill(tint)
+            .fill(tint.opacity(0.7))
         }
-        .frame(height: 19)
     }
 }
 
 private struct ProgressPill: View {
     let value: Double
     let tint: Color
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 2, style: .continuous)
-                    .fill(Color(nsColor: .separatorColor).opacity(0.28))
-                RoundedRectangle(cornerRadius: 2, style: .continuous)
-                    .fill(tint)
-                    .frame(width: max(4, proxy.size.width * min(max(value, 0), 1)))
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(AppTheme.progressBg(colorScheme))
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(LinearGradient(colors: [tint.opacity(0.7), tint], startPoint: .leading, endPoint: .trailing))
+                    .frame(width: max(2, proxy.size.width * min(max(value, 0), 1)))
             }
         }
-        .frame(height: 10)
     }
 }
 
-enum AppTheme {
-    static let background = Color(nsColor: .windowBackgroundColor)
-    static let panel = Color(nsColor: .controlBackgroundColor)
-    static let border = Color(nsColor: .separatorColor).opacity(0.8)
-    static let separator = Color(nsColor: .separatorColor).opacity(0.7)
-    static let icon = Color(nsColor: .secondaryLabelColor)
+private struct FanGauge: View {
+    let percentage: Double
+    let color: Color
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 1.5)
+                    .fill(AppTheme.progressBg(colorScheme))
+                RoundedRectangle(cornerRadius: 1.5)
+                    .fill(color.opacity(0.7))
+                    .frame(width: max(2, proxy.size.width * min(max(percentage, 0), 1)))
+            }
+        }
+    }
 }
+
+// MARK: - 毛玻璃效果
+
+struct VisualEffectBlur: NSViewRepresentable {
+    let material: NSVisualEffectView.Material
+    let blendingMode: NSVisualEffectView.BlendingMode
+
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = material
+        view.blendingMode = blendingMode
+        view.state = .active
+        view.wantsLayer = true
+        return view
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+        nsView.material = material
+        nsView.blendingMode = blendingMode
+    }
+}
+
+// MARK: - 主题
+
+enum AppTheme {
+    // 健康状态颜色 - 深浅模式通用
+    static let healthy = Color(red: 0.2, green: 0.78, blue: 0.4)
+    static let warning = Color(red: 0.95, green: 0.65, blue: 0.15)
+    static let critical = Color(red: 0.95, green: 0.3, blue: 0.3)
+
+    static func healthColor(for usage: Double) -> Color {
+        switch usage {
+        case ..<0.6: return healthy
+        case ..<0.85: return warning
+        default: return critical
+        }
+    }
+
+    // 根据 colorScheme 返回对应颜色
+    static func icon(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.white.opacity(0.85) : Color.black.opacity(0.7)
+    }
+
+    static func textPrimary(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.white : Color.black.opacity(0.9)
+    }
+
+    static func textSecondary(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.white.opacity(0.65) : Color.black.opacity(0.55)
+    }
+
+    static func separator(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.white.opacity(0.06) : Color.black.opacity(0.08)
+    }
+
+    static func progressBg(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.08)
+    }
+}
+
+// MARK: - 格式化扩展
 
 private extension Double {
     var percentText: String {
@@ -260,7 +651,6 @@ private extension UInt64 {
     var memoryText: String {
         ByteCountFormatter.memoryFormatter.string(fromByteCount: Int64(self))
     }
-
     var storageText: String {
         ByteCountFormatter.storageFormatter.string(fromByteCount: Int64(self))
     }
@@ -268,27 +658,26 @@ private extension UInt64 {
 
 private extension ByteCountFormatter {
     static let memoryFormatter: ByteCountFormatter = {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useGB, .useMB]
-        formatter.countStyle = .memory
-        formatter.includesUnit = true
-        formatter.isAdaptive = true
-        return formatter
+        let f = ByteCountFormatter()
+        f.allowedUnits = [.useGB, .useMB]
+        f.countStyle = .memory
+        f.includesUnit = true
+        f.isAdaptive = true
+        return f
     }()
-
     static let storageFormatter: ByteCountFormatter = {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useGB, .useMB, .useKB]
-        formatter.countStyle = .file
-        formatter.includesUnit = true
-        formatter.isAdaptive = true
-        return formatter
+        let f = ByteCountFormatter()
+        f.allowedUnits = [.useGB, .useMB, .useKB]
+        f.countStyle = .file
+        f.includesUnit = true
+        f.isAdaptive = true
+        return f
     }()
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
-            .frame(width: 224, height: 388)
+            .frame(width: 220, height: 360)
     }
 }

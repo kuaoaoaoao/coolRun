@@ -1,10 +1,37 @@
 import Foundation
 import Observation
 
+/// 历史数据追踪器，用于趋势图表
+struct MetricHistory {
+    private(set) var values: [Double] = []
+    let maxCount: Int
+
+    init(maxCount: Int = 60) {
+        self.maxCount = maxCount
+    }
+
+    mutating func append(_ value: Double) {
+        values.append(value)
+        if values.count > maxCount {
+            values.removeFirst(values.count - maxCount)
+        }
+    }
+
+    var latest: Double? { values.last }
+}
+
 @MainActor
 @Observable
 final class SystemMonitorViewModel {
     var snapshot = SystemSnapshot()
+
+    /// 历史数据
+    var cpuHistory = MetricHistory()
+    var memoryHistory = MetricHistory()
+    var downloadHistory = MetricHistory()
+    var uploadHistory = MetricHistory()
+    var cpuTempHistory = MetricHistory()
+    var gpuTempHistory = MetricHistory()
 
     private let sampler = SystemSampler()
     private var refreshTask: Task<Void, Never>?
@@ -32,5 +59,18 @@ final class SystemMonitorViewModel {
 
     func refresh() {
         snapshot = sampler.sample()
+
+        // 更新历史数据
+        cpuHistory.append(snapshot.cpu.usage)
+        memoryHistory.append(snapshot.memory.usage)
+        downloadHistory.append(Double(snapshot.network.downloadSpeed))
+        uploadHistory.append(Double(snapshot.network.uploadSpeed))
+
+        if let cpuTemp = snapshot.temperature.cpuTemperature {
+            cpuTempHistory.append(cpuTemp)
+        }
+        if let gpuTemp = snapshot.temperature.gpuTemperature {
+            gpuTempHistory.append(gpuTemp)
+        }
     }
 }

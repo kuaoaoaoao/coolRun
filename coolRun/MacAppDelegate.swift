@@ -34,12 +34,12 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
 
         popover.behavior = .transient
         popover.animates = false
-        popover.contentSize = NSSize(width: 244, height: 408)
+        popover.contentSize = NSSize(width: 236, height: 280)
         popover.contentViewController = NSHostingController(rootView: MenuBarMonitorView())
 
         contextPopover.behavior = .transient
         contextPopover.animates = false
-        contextPopover.contentSize = NSSize(width: 160, height: 82)
+        contextPopover.contentSize = NSSize(width: 150, height: 80)
         contextPopover.contentViewController = NSHostingController(
             rootView: StatusContextMenuView(
                 openSettings: { [weak self] in
@@ -200,7 +200,7 @@ private struct StatusContextMenuView: View {
                 .simultaneousGesture(TapGesture().onEnded(openSettings))
                 .buttonStyle(.plain)
                 .padding(.horizontal, 12)
-                .frame(maxWidth: .infinity, minHeight: 36, alignment: .leading)
+                .frame(maxWidth: .infinity, minHeight: 32, alignment: .leading)
 
             Divider()
 
@@ -210,10 +210,10 @@ private struct StatusContextMenuView: View {
             }
             .buttonStyle(.plain)
             .padding(.horizontal, 12)
-            .frame(height: 36)
+            .frame(height: 32)
         }
-        .padding(.vertical, 5)
-        .frame(width: 160)
+        .padding(.vertical, 4)
+        .frame(width: 150)
         .background(Color(nsColor: .windowBackgroundColor))
     }
 }
