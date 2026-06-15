@@ -19,7 +19,6 @@ final class SystemSampler {
         let network = sampleNetwork()
         let uptime = sampleUptime()
         let temperature = sampleTemperature()
-        let fans = sampleFans()
 
         defer { previousSampleTime = now }
 
@@ -31,7 +30,6 @@ final class SystemSampler {
             network: network,
             uptime: uptime,
             temperature: temperature,
-            fans: fans,
             updatedAt: now
         )
     }
@@ -281,25 +279,6 @@ final class SystemSampler {
             gpuTemperature: gpuTemp,
             sensors: sensors
         )
-    }
-
-    private func sampleFans() -> FanMetrics {
-        guard smcReader.available else {
-            return FanMetrics(isAvailable: false)
-        }
-
-        let fanReadings = smcReader.readFans()
-
-        let fans = fanReadings.map { reading in
-            FanInfo(
-                name: reading.name,
-                currentRPM: reading.currentRPM,
-                minRPM: reading.minRPM,
-                maxRPM: reading.maxRPM
-            )
-        }
-
-        return FanMetrics(fans: fans, isAvailable: true)
     }
 
     private func currentNetworkStatus() -> NetworkStatus {

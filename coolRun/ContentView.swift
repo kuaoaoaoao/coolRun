@@ -63,8 +63,6 @@ struct MonitorPanel: View {
                 uploadHistory: uploadHistory
             )
             Separator()
-            FanSection(fans: snapshot.fans)
-            Separator()
             UptimeSection(metrics: snapshot.uptime)
         }
         .padding(.vertical, 6)
@@ -318,54 +316,6 @@ private struct NetworkSection: View {
     }
 }
 
-private struct FanSection: View {
-    let fans: FanMetrics
-
-    var body: some View {
-        CollapsibleSection(icon: "fan.fill", title: "风扇", value: fanSpeedText) {
-            if let firstFan = fans.fans.first {
-                Text(firstFan.formatted)
-                    .foregroundStyle(fanColor)
-                    .font(.system(size: 11, weight: .medium, design: .monospaced))
-            }
-        } content: {
-            if fans.isAvailable && !fans.fans.isEmpty {
-                ForEach(fans.fans) { fan in
-                    HStack {
-                        MetricRow(label: fan.name, value: fan.formatted)
-                        FanGauge(percentage: fan.percentage, color: fanColor)
-                            .frame(width: 30, height: 4)
-                    }
-                }
-            } else if fans.isAvailable {
-                MetricRow(label: "状态", value: "未检测到风扇")
-            } else {
-                MetricRow(label: "状态", value: "SMC 不可用")
-            }
-        }
-    }
-
-    private var fanSpeedText: String {
-        if let firstFan = fans.fans.first {
-            return firstFan.formatted
-        }
-        return "--"
-    }
-
-    @Environment(\.colorScheme) private var colorScheme
-
-    private var fanColor: Color {
-        guard let maxPercentage = fans.fans.map(\.percentage).max() else {
-            return AppTheme.icon(colorScheme)
-        }
-        switch maxPercentage {
-        case ..<0.5: return AppTheme.healthy
-        case ..<0.8: return AppTheme.warning
-        default: return AppTheme.critical
-        }
-    }
-}
-
 private struct UptimeSection: View {
     let metrics: UptimeMetrics
     @Environment(\.colorScheme) private var colorScheme
@@ -557,24 +507,6 @@ private struct ProgressPill: View {
                 RoundedRectangle(cornerRadius: 2)
                     .fill(LinearGradient(colors: [tint.opacity(0.7), tint], startPoint: .leading, endPoint: .trailing))
                     .frame(width: max(2, proxy.size.width * min(max(value, 0), 1)))
-            }
-        }
-    }
-}
-
-private struct FanGauge: View {
-    let percentage: Double
-    let color: Color
-    @Environment(\.colorScheme) private var colorScheme
-
-    var body: some View {
-        GeometryReader { proxy in
-            ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 1.5)
-                    .fill(AppTheme.progressBg(colorScheme))
-                RoundedRectangle(cornerRadius: 1.5)
-                    .fill(color.opacity(0.7))
-                    .frame(width: max(2, proxy.size.width * min(max(percentage, 0), 1)))
             }
         }
     }

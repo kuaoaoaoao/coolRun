@@ -3,7 +3,7 @@
 //  coolRun
 //
 //  读取 macOS SMC (System Management Controller) 数据
-//  包括温度传感器和风扇转速
+//  包括温度传感器
 //
 
 import Foundation
@@ -133,7 +133,7 @@ private final class SMCConnection {
                 return Double(value)
             }
         case fourCharCode(from: "fpe2"):
-            // 浮点数 14.2 格式（风扇转速）
+            // 浮点数 14.2 格式
             if size >= 2 {
                 let value = (UInt16(bytes.0) << 8) | UInt16(bytes.1)
                 return Double(value) / 4.0
@@ -194,25 +194,6 @@ struct TemperatureReading: Equatable, Identifiable {
 
     var formatted: String {
         String(format: "%.1f°C", temperature)
-    }
-}
-
-/// 风扇读数
-struct FanReading: Equatable, Identifiable {
-    let id = UUID()
-    let name: String
-    let currentRPM: Int
-    let minRPM: Int
-    let maxRPM: Int
-
-    var formatted: String {
-        "\(currentRPM) RPM"
-    }
-
-    /// 风扇转速百分比
-    var percentage: Double {
-        guard maxRPM > minRPM else { return 0 }
-        return Double(currentRPM - minRPM) / Double(maxRPM - minRPM)
     }
 }
 
@@ -316,73 +297,6 @@ final class SMCReader {
         return nil
     }
 
-    // MARK: - 风扇
-
-    /// 读取风扇数量
-    func readFanCount() -> Int {
-        guard let connection = connection else { return 0 }
-        if let count = connection.read(key: "FNum") {
-            return Int(count)
-        }
-        return 0
-    }
-
-    /// 读取所有风扇数据
-    func readFans() -> [FanReading] {
-        guard let connection = connection else { return [] }
-
-        let fanCount = readFanCount()
-
-        if fanCount > 0 {
-            var fans: [FanReading] = []
-
-            for i in 0..<fanCount {
-                let prefix = "F\(i)"
-                let currentKey = "\(prefix)Ac"
-                let minKey = "\(prefix)Mn"
-                let maxKey = "\(prefix)Mx"
-
-                if let current = connection.read(key: currentKey) {
-                    let min = connection.read(key: minKey) ?? 0
-                    let max = connection.read(key: maxKey) ?? 6000
-
-                    fans.append(FanReading(
-                        name: "风扇 \(i + 1)",
-                        currentRPM: Int(current),
-                        minRPM: Int(min),
-                        maxRPM: Int(max)
-                    ))
-                }
-            }
-
-            return fans
-        }
-
-        // 尝试读取默认的两个风扇
-        return readDefaultFans(connection: connection)
-    }
-
-    /// 读取默认风扇（F0, F1）
-    private func readDefaultFans(connection: SMCConnection) -> [FanReading] {
-        var fans: [FanReading] = []
-
-        for i in 0..<2 {
-            let prefix = "F\(i)"
-            if let current = connection.read(key: "\(prefix)Ac") {
-                let min = connection.read(key: "\(prefix)Mn") ?? 0
-                let max = connection.read(key: "\(prefix)Mx") ?? 6000
-
-                fans.append(FanReading(
-                    name: "风扇 \(i + 1)",
-                    currentRPM: Int(current),
-                    minRPM: Int(min),
-                    maxRPM: Int(max)
-                ))
-            }
-        }
-
-        return fans
-    }
 }
 
 #else
@@ -393,8 +307,6 @@ final class SMCReader {
     func readTemperatures() -> [TemperatureReading] { [] }
     func readCPUTemperature() -> Double? { nil }
     func readGPUTemperature() -> Double? { nil }
-    func readFanCount() -> Int { 0 }
-    func readFans() -> [FanReading] { [] }
 }
 
 struct TemperatureReading: Equatable, Identifiable {
@@ -402,16 +314,6 @@ struct TemperatureReading: Equatable, Identifiable {
     let name: String
     let temperature: Double
     var formatted: String { "" }
-}
-
-struct FanReading: Equatable, Identifiable {
-    let id = UUID()
-    let name: String
-    let currentRPM: Int
-    let minRPM: Int
-    let maxRPM: Int
-    var formatted: String { "" }
-    var percentage: Double { 0 }
 }
 
 #endif

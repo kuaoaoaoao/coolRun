@@ -61,7 +61,6 @@ The app uses SwiftUI with an `NSApplicationDelegateAdaptor` pattern to bridge Ap
 - **Network**: Connection status, local IP, active interface count, upload/download speed
 - **Uptime**: System uptime display (days, hours, minutes)
 - **Temperature**: CPU and GPU temperature via SMC sensors
-- **Fans**: Fan speed (RPM), fan count, speed gauge with color coding
 
 ### UI Features
 - **Frosted Glass Effect**: Modern translucent background using `NSVisualEffectView` with `.hudWindow` material

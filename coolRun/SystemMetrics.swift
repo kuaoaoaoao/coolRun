@@ -8,7 +8,6 @@ struct SystemSnapshot: Equatable {
     var network = NetworkMetrics()
     var uptime = UptimeMetrics()
     var temperature = TemperatureMetrics()
-    var fans = FanMetrics()
     var updatedAt = Date()
 }
 
@@ -91,27 +90,5 @@ struct SensorReading: Equatable, Identifiable {
 
     var formatted: String {
         String(format: "%.1f°C", temperature)
-    }
-}
-
-struct FanMetrics: Equatable {
-    var fans: [FanInfo] = []
-    var isAvailable: Bool = false
-}
-
-struct FanInfo: Equatable, Identifiable {
-    let id = UUID()
-    let name: String
-    let currentRPM: Int
-    let minRPM: Int
-    let maxRPM: Int
-
-    var formatted: String {
-        "\(currentRPM) RPM"
-    }
-
-    var percentage: Double {
-        guard maxRPM > minRPM else { return 0 }
-        return Double(currentRPM - minRPM) / Double(maxRPM - minRPM)
     }
 }
