@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f0efe66-915b-427a-af1c-f91fc20a98d8" name="更改" comment="chore(coolRun): 移除风扇状态功能及相关代码&#10;&#10;- 从ContentView中删除风扇显示模块&#10;- 移除FanSection及FanGauge等风扇相关视图组件&#10;- 删除SMCReader中风扇读数及相关接口实现&#10;- 移除SystemMetrics中风扇数据结构定义&#10;- SystemSampler中停止采样风扇数据&#10;- 更新Info.plist添加代码签名资源文件和PkgInfo文件&#10;- 调整macOS部署目标版本为15.0&#10;- 修改首页及README，删除所有风扇相关描述及UI元素&#10;- 优化首页样式及内容排版，增强响应式支持" />
+    <list default="true" id="3f0efe66-915b-427a-af1c-f91fc20a98d8" name="更改" comment="feat(birthday): 添加完整农历生日管理和视图支持&#10;&#10;- 新增生日模型 Birthday，支持农历日期、闰月及备注信息&#10;- 实现生日管理器 BirthdayManager，支持增删改查及本地持久化&#10;- 添加生日添加及编辑视图 BirthdayAddView，支持农历日期选择和备注填写&#10;- 实现生日列表视图 BirthdayListView，支持生日展示、编辑及删除操作&#10;- 提供生日详情弹窗 BirthdayDetailView，展示选定日期的生日提醒&#10;- 实现本地化字符串管理，支持多语言显示（简体中文、英文、日语、韩语）&#10;- 多处界面细节优化，提升生日管理交互体验&#10;- 移除.idea中不必要的配置，优化项目管理状态&#10;- 新增应用设置管理 AppSettings，管理语言与监控模块显示配置" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -90,6 +90,7 @@
       <workItem from="1781250233235" duration="975000" />
       <workItem from="1781322941779" duration="2375000" />
       <workItem from="1781490088323" duration="355000" />
+      <workItem from="1782021159141" duration="155000" />
     </task>
     <task id="LOCAL-00001" summary="feat(app): 添加系统监控面板和电池管理新功能&#10;&#10;- 实现包含CPU、内存、存储、电池和网络信息的系统监控面板&#10;- 新增电池电量指示视图，支持不同显示样式和充电状态&#10;- 集成电池服务，支持通过XPC获取和管理电池及适配器数据&#10;- 添加充电管理器，自动控制电池充电行为并监听系统设置变化&#10;- 在macOS应用入口处添加AppDelegate支持和设置窗口占位&#10;- 更新AppIcon资源，支持不同尺寸和平台的图标文件&#10;- 引入高级设置界面，允许用户切换硬件电池百分比显示选项&#10;- 优化项目配置，添加代码签名权限(Entitlements)支持&#10;- 增加多处UI细节和动画优雅展示电池及系统状态信息">
       <option name="closed" value="true" />
@@ -211,7 +212,15 @@
       <option name="project" value="LOCAL" />
       <updated>1781490417992</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="feat(birthday): 添加完整农历生日管理和视图支持&#10;&#10;- 新增生日模型 Birthday，支持农历日期、闰月及备注信息&#10;- 实现生日管理器 BirthdayManager，支持增删改查及本地持久化&#10;- 添加生日添加及编辑视图 BirthdayAddView，支持农历日期选择和备注填写&#10;- 实现生日列表视图 BirthdayListView，支持生日展示、编辑及删除操作&#10;- 提供生日详情弹窗 BirthdayDetailView，展示选定日期的生日提醒&#10;- 实现本地化字符串管理，支持多语言显示（简体中文、英文、日语、韩语）&#10;- 多处界面细节优化，提升生日管理交互体验&#10;- 移除.idea中不必要的配置，优化项目管理状态&#10;- 新增应用设置管理 AppSettings，管理语言与监控模块显示配置">
+      <option name="closed" value="true" />
+      <created>1782021267814</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1782021267814</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -242,6 +251,7 @@
     <MESSAGE value="chore(app): 更新macOS应用配置与首页界面优化&#10;&#10;- 添加CodeResources代码签名资源文件和PkgInfo文件&#10;- 新增Info.plist配置，设置应用基本属性和系统版本要求&#10;- 调整Xcode项目部署目标版本为macOS 15.0&#10;- 优化首页样式及内容排版，增强响应式支持&#10;- 修改导航栏样式并重构英雄区和功能展示区布局&#10;- 添加Star History图表展示项目动态&#10;- 更新README 与首页文案，更清晰表达产品定位和功能亮点&#10;- 丰富首页内容，新增适合目标用户群的介绍模块&#10;- 优化meta标签，提升页面SEO和社交分享效果" />
     <MESSAGE value="chore(app): 更新macOS应用配置与首页界面优化&#10;&#10;- 添加CodeResources代码签名资源文件和PkgInfo文件&#10;- 新增Info.plist配置，设置应用基本属性和系统版本要求&#10;- 调整Xcode项目部署目标版本为macOS 15.0&#10;- 优化首页样式及内容排版，增强响应式支持&#10;- 修改导航栏样式并重构英雄区和功能展示区布局&#10;- 添加Star History图表展示项目动态&#10;- 更新README与首页文案，更清晰表达产品定位和功能亮点&#10;- 丰富首页内容，新增适合目标用户群的介绍模块&#10;- 优化meta标签，提升页面SEO和社交分享效果" />
     <MESSAGE value="chore(coolRun): 移除风扇状态功能及相关代码&#10;&#10;- 从ContentView中删除风扇显示模块&#10;- 移除FanSection及FanGauge等风扇相关视图组件&#10;- 删除SMCReader中风扇读数及相关接口实现&#10;- 移除SystemMetrics中风扇数据结构定义&#10;- SystemSampler中停止采样风扇数据&#10;- 更新Info.plist添加代码签名资源文件和PkgInfo文件&#10;- 调整macOS部署目标版本为15.0&#10;- 修改首页及README，删除所有风扇相关描述及UI元素&#10;- 优化首页样式及内容排版，增强响应式支持" />
-    <option name="LAST_COMMIT_MESSAGE" value="chore(coolRun): 移除风扇状态功能及相关代码&#10;&#10;- 从ContentView中删除风扇显示模块&#10;- 移除FanSection及FanGauge等风扇相关视图组件&#10;- 删除SMCReader中风扇读数及相关接口实现&#10;- 移除SystemMetrics中风扇数据结构定义&#10;- SystemSampler中停止采样风扇数据&#10;- 更新Info.plist添加代码签名资源文件和PkgInfo文件&#10;- 调整macOS部署目标版本为15.0&#10;- 修改首页及README，删除所有风扇相关描述及UI元素&#10;- 优化首页样式及内容排版，增强响应式支持" />
+    <MESSAGE value="feat(birthday): 添加完整农历生日管理和视图支持&#10;&#10;- 新增生日模型 Birthday，支持农历日期、闰月及备注信息&#10;- 实现生日管理器 BirthdayManager，支持增删改查及本地持久化&#10;- 添加生日添加及编辑视图 BirthdayAddView，支持农历日期选择和备注填写&#10;- 实现生日列表视图 BirthdayListView，支持生日展示、编辑及删除操作&#10;- 提供生日详情弹窗 BirthdayDetailView，展示选定日期的生日提醒&#10;- 实现本地化字符串管理，支持多语言显示（简体中文、英文、日语、韩语）&#10;- 多处界面细节优化，提升生日管理交互体验&#10;- 移除.idea中不必要的配置，优化项目管理状态&#10;- 新增应用设置管理 AppSettings，管理语言与监控模块显示配置" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(birthday): 添加完整农历生日管理和视图支持&#10;&#10;- 新增生日模型 Birthday，支持农历日期、闰月及备注信息&#10;- 实现生日管理器 BirthdayManager，支持增删改查及本地持久化&#10;- 添加生日添加及编辑视图 BirthdayAddView，支持农历日期选择和备注填写&#10;- 实现生日列表视图 BirthdayListView，支持生日展示、编辑及删除操作&#10;- 提供生日详情弹窗 BirthdayDetailView，展示选定日期的生日提醒&#10;- 实现本地化字符串管理，支持多语言显示（简体中文、英文、日语、韩语）&#10;- 多处界面细节优化，提升生日管理交互体验&#10;- 移除.idea中不必要的配置，优化项目管理状态&#10;- 新增应用设置管理 AppSettings，管理语言与监控模块显示配置" />
   </component>
 </project>
