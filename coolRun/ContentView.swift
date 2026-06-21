@@ -1,19 +1,52 @@
 import SwiftUI
 
+// MARK: - 视图模式
+
+enum ViewMode: String, CaseIterable {
+    case monitor
+    case calendar
+
+    var icon: String {
+        switch self {
+        case .monitor: return "chart.bar.fill"
+        case .calendar: return "calendar"
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .monitor: return LocalizedString.calendar("monitor")
+        case .calendar: return LocalizedString.calendar("calendar")
+        }
+    }
+}
+
 struct ContentView: View {
     @State private var viewModel = SystemMonitorViewModel()
+    @State private var viewMode: ViewMode = .monitor
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        MonitorPanel(
-            snapshot: viewModel.snapshot,
-            cpuHistory: viewModel.cpuHistory,
-            memoryHistory: viewModel.memoryHistory,
-            downloadHistory: viewModel.downloadHistory,
-            uploadHistory: viewModel.uploadHistory,
-            cpuTempHistory: viewModel.cpuTempHistory,
-            gpuTempHistory: viewModel.gpuTempHistory
-        )
+        VStack(spacing: 0) {
+            // 视图切换标签
+            viewModePicker
+
+            // 内容区域
+            switch viewMode {
+            case .monitor:
+                MonitorPanel(
+                    snapshot: viewModel.snapshot,
+                    cpuHistory: viewModel.cpuHistory,
+                    memoryHistory: viewModel.memoryHistory,
+                    downloadHistory: viewModel.downloadHistory,
+                    uploadHistory: viewModel.uploadHistory,
+                    cpuTempHistory: viewModel.cpuTempHistory,
+                    gpuTempHistory: viewModel.gpuTempHistory
+                )
+            case .calendar:
+                CalendarView()
+            }
+        }
         .padding(8)
         .background {
             ZStack {
@@ -28,6 +61,44 @@ struct ContentView: View {
         .onAppear { viewModel.start() }
         .onDisappear { viewModel.stop() }
     }
+
+    // MARK: - 视图切换标签
+
+    private var viewModePicker: some View {
+        HStack(spacing: 0) {
+            ForEach(ViewMode.allCases, id: \.self) { mode in
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        viewMode = mode
+                    }
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: mode.icon)
+                            .font(.system(size: 10, weight: .medium))
+                        Text(mode.displayName)
+                            .font(.system(size: 11, weight: .medium))
+                    }
+                    .foregroundStyle(viewMode == mode ? AppTheme.healthy : AppTheme.textSecondary(colorScheme))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background {
+                        if viewMode == mode {
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .fill(AppTheme.healthy.opacity(0.15))
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(colorScheme == .dark ? Color.white.opacity(0.05) : Color.black.opacity(0.03))
+        }
+        .padding(.bottom, 6)
+    }
 }
 
 struct MonitorPanel: View {
@@ -39,31 +110,49 @@ struct MonitorPanel: View {
     var cpuTempHistory: MetricHistory = MetricHistory()
     var gpuTempHistory: MetricHistory = MetricHistory()
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
         VStack(spacing: 0) {
-            CPUSection(
-                metrics: snapshot.cpu,
-                temperature: snapshot.temperature,
-                history: cpuHistory
-            )
-            Separator()
-            MemorySection(
-                metrics: snapshot.memory,
-                history: memoryHistory
-            )
-            Separator()
-            StorageSection(metrics: snapshot.storage)
-            Separator()
-            BatterySection(metrics: snapshot.battery)
-            Separator()
-            NetworkSection(
-                metrics: snapshot.network,
-                downloadHistory: downloadHistory,
-                uploadHistory: uploadHistory
-            )
-            Separator()
-            UptimeSection(metrics: snapshot.uptime)
+            if settings.showCPU {
+                CPUSection(
+                    metrics: snapshot.cpu,
+                    temperature: snapshot.temperature,
+                    history: cpuHistory
+                )
+            }
+
+            if settings.showMemory {
+                if settings.showCPU { Separator() }
+                MemorySection(
+                    metrics: snapshot.memory,
+                    history: memoryHistory
+                )
+            }
+
+            if settings.showStorage {
+                if settings.showCPU || settings.showMemory { Separator() }
+                StorageSection(metrics: snapshot.storage)
+            }
+
+            if settings.showBattery {
+                if settings.showCPU || settings.showMemory || settings.showStorage { Separator() }
+                BatterySection(metrics: snapshot.battery)
+            }
+
+            if settings.showNetwork {
+                if settings.showCPU || settings.showMemory || settings.showStorage || settings.showBattery { Separator() }
+                NetworkSection(
+                    metrics: snapshot.network,
+                    downloadHistory: downloadHistory,
+                    uploadHistory: uploadHistory
+                )
+            }
+
+            if settings.showUptime {
+                if settings.showCPU || settings.showMemory || settings.showStorage || settings.showBattery || settings.showNetwork { Separator() }
+                UptimeSection(metrics: snapshot.uptime)
+            }
         }
         .padding(.vertical, 6)
         .background {
@@ -104,10 +193,12 @@ private struct CollapsibleSection<Header: View, Content: View>: View {
                 Text(title)
                     .foregroundStyle(AppTheme.textSecondary(colorScheme))
                     .font(.system(size: 11, weight: .medium))
+                    .layoutPriority(1)
 
-                Spacer()
+                Spacer(minLength: 4)
 
                 header()
+                    .layoutPriority(2)
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 9, weight: .semibold))
@@ -116,6 +207,7 @@ private struct CollapsibleSection<Header: View, Content: View>: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
+            .frame(minHeight: 36)
             .contentShape(Rectangle())
             .onTapGesture {
                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -321,10 +413,13 @@ private struct UptimeSection: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        CollapsibleSection(icon: "clock", title: "运行时间", value: metrics.formatted) {
-            Text(metrics.formatted)
+        CollapsibleSection(icon: "clock", title: "运行时间", value: metrics.compactFormatted) {
+            Text(metrics.compactFormatted)
                 .foregroundStyle(AppTheme.textPrimary(colorScheme).opacity(0.8))
                 .font(.system(size: 11, weight: .medium, design: .monospaced))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(minWidth: 50, alignment: .trailing)
         } content: {
             MetricRow(label: "已运行", value: metrics.formatted)
         }
@@ -366,7 +461,7 @@ private struct MetricRow: View {
     }
 }
 
-private struct Separator: View {
+struct Separator: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {

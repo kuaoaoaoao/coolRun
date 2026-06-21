@@ -1,6 +1,7 @@
 #if os(macOS)
 import AppKit
 import SwiftUI
+import Combine
 
 @MainActor
 final class MacAppDelegate: NSObject, NSApplicationDelegate {
@@ -9,9 +10,11 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
     private let contextPopover = NSPopover()
     private let viewModel = SystemMonitorViewModel()
     private let goldPriceService = GoldPriceService()
+    private let settings = AppSettings.shared
     private var windowCloseObserver: NSObjectProtocol?
     private var iconTimer: Timer?
     private var goldPriceTask: Task<Void, Never>?
+    private var cancellables = Set<AnyCancellable>()
     private var coinPhase = 0.0
     private var goldPriceText = "金价 --"
     private let goldPriceRefreshInterval: Duration = .seconds(1)
@@ -34,7 +37,7 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
 
         popover.behavior = .transient
         popover.animates = false
-        popover.contentSize = NSSize(width: 236, height: 280)
+        popover.contentSize = NSSize(width: 236, height: 380)
         popover.contentViewController = NSHostingController(rootView: MenuBarMonitorView())
 
         contextPopover.behavior = .transient
@@ -52,9 +55,20 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
         )
 
         observeSettingsWindowLifecycle()
+        observeSettingsChanges()
         viewModel.start()
         startIconAnimation()
         startGoldPriceUpdates()
+    }
+
+    // 监听设置变化
+    private func observeSettingsChanges() {
+        settings.$menuBarDisplayMode
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.refreshIcon()
+            }
+            .store(in: &cancellables)
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -153,7 +167,22 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
             .truncatingRemainder(dividingBy: .pi * 2)
 
         statusItem?.button?.image = CoinIconRenderer.image(phase: coinPhase)
-        statusItem?.button?.title = " \(goldPriceText)"
+
+        // 根据设置显示金价或日期
+        switch settings.menuBarDisplayMode {
+        case .goldPrice:
+            statusItem?.button?.title = " \(goldPriceText)"
+        case .date:
+            statusItem?.button?.title = " \(menuBarDateText)"
+        }
+    }
+
+    // 菜单栏日期文本
+    private var menuBarDateText: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M月d日 EEEE"
+        formatter.locale = Locale(identifier: settings.language == .english ? "en_US" : "zh_CN")
+        return formatter.string(from: Date())
     }
 
     private func startGoldPriceUpdates() {
@@ -205,7 +234,7 @@ private struct StatusContextMenuView: View {
             Divider()
 
             Button(action: quit) {
-                Label("退出程序", systemImage: "power")
+                Label(LocalizedString.menuBar("quit"), systemImage: "power")
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .buttonStyle(.plain)

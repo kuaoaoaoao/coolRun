@@ -63,19 +63,6 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager">
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="coolRun" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="coolRun" />
-      <option name="filePath" />
-      <method v="2" />
-    </configuration>
-  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -102,7 +89,7 @@
       <workItem from="1781243118907" duration="33000" />
       <workItem from="1781250233235" duration="975000" />
       <workItem from="1781322941779" duration="2375000" />
-      <workItem from="1781490088323" duration="308000" />
+      <workItem from="1781490088323" duration="355000" />
     </task>
     <task id="LOCAL-00001" summary="feat(app): 添加系统监控面板和电池管理新功能&#10;&#10;- 实现包含CPU、内存、存储、电池和网络信息的系统监控面板&#10;- 新增电池电量指示视图，支持不同显示样式和充电状态&#10;- 集成电池服务，支持通过XPC获取和管理电池及适配器数据&#10;- 添加充电管理器，自动控制电池充电行为并监听系统设置变化&#10;- 在macOS应用入口处添加AppDelegate支持和设置窗口占位&#10;- 更新AppIcon资源，支持不同尺寸和平台的图标文件&#10;- 引入高级设置界面，允许用户切换硬件电池百分比显示选项&#10;- 优化项目配置，添加代码签名权限(Entitlements)支持&#10;- 增加多处UI细节和动画优雅展示电池及系统状态信息">
       <option name="closed" value="true" />
@@ -216,7 +203,15 @@
       <option name="project" value="LOCAL" />
       <updated>1781490123907</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="chore(coolRun): 移除风扇状态功能及相关代码&#10;&#10;- 从ContentView中删除风扇显示模块&#10;- 移除FanSection及FanGauge等风扇相关视图组件&#10;- 删除SMCReader中风扇读数及相关接口实现&#10;- 移除SystemMetrics中风扇数据结构定义&#10;- SystemSampler中停止采样风扇数据&#10;- 更新Info.plist添加代码签名资源文件和PkgInfo文件&#10;- 调整macOS部署目标版本为15.0&#10;- 修改首页及README，删除所有风扇相关描述及UI元素&#10;- 优化首页样式及内容排版，增强响应式支持">
+      <option name="closed" value="true" />
+      <created>1781490417992</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1781490417992</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

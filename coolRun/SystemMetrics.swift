@@ -64,6 +64,7 @@ struct NetworkMetrics: Equatable {
 struct UptimeMetrics: Equatable {
     var uptime: TimeInterval = 0  // seconds
 
+    // 完整格式（用于展开详情）
     var formatted: String {
         let days = Int(uptime) / 86400
         let hours = (Int(uptime) % 86400) / 3600
@@ -74,6 +75,24 @@ struct UptimeMetrics: Equatable {
         if hours > 0 { parts.append("\(hours)小时") }
         if minutes > 0 || parts.isEmpty { parts.append("\(minutes)分钟") }
         return parts.joined(separator: " ")
+    }
+
+    // 紧凑格式（用于标题行，避免布局变化）
+    var compactFormatted: String {
+        let days = Int(uptime) / 86400
+        let hours = (Int(uptime) % 86400) / 3600
+        let minutes = (Int(uptime) % 3600) / 60
+
+        if days > 0 {
+            // 超过1天：只显示天和小时
+            return "\(days)天\(hours)时"
+        } else if hours > 0 {
+            // 超过1小时：显示小时和分钟
+            return "\(hours)时\(minutes)分"
+        } else {
+            // 不足1小时：只显示分钟
+            return "\(minutes)分"
+        }
     }
 }
 
