@@ -79,15 +79,37 @@ struct BirthdayAddView: View {
     @State private var selectedDay: Int = 1
     @State private var isLeapMonth: Bool = false
     @State private var note: String = ""
+    @ObservedObject private var settings = AppSettings.shared
 
-    private let monthNames = ["正月", "二月", "三月", "四月", "五月", "六月",
-                               "七月", "八月", "九月", "十月", "冬月", "腊月"]
+    private var monthNames: [String] {
+        let lang = settings.language
+        switch lang {
+        case .english:
+            return ["1st", "2nd", "3rd", "4th", "5th", "6th",
+                    "7th", "8th", "9th", "10th", "11th", "12th"]
+        default:
+            return ["正月", "二月", "三月", "四月", "五月", "六月",
+                    "七月", "八月", "九月", "十月", "冬月", "腊月"]
+        }
+    }
 
-    private let dayNames = [
-        "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
-        "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
-        "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"
-    ]
+    private var dayNames: [String] {
+        let lang = settings.language
+        switch lang {
+        case .english:
+            return [
+                "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th",
+                "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th", "20th",
+                "21st", "22nd", "23rd", "24th", "25th", "26th", "27th", "28th", "29th", "30th"
+            ]
+        default:
+            return [
+                "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
+                "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
+                "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"
+            ]
+        }
+    }
 
     init(existingBirthday: Birthday? = nil, onSave: @escaping (Birthday) -> Void) {
         self.existingBirthday = existingBirthday
@@ -113,17 +135,17 @@ struct BirthdayAddView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     // 姓名输入
-                    formField(title: "姓名") {
-                        AppKitTextField(text: $name, placeholder: "输入姓名")
+                    formField(title: LocalizedString.calendar("name")) {
+                        AppKitTextField(text: $name, placeholder: settings.language == .english ? "Enter name" : "输入姓名")
                             .frame(height: 24)
                     }
 
                     // 农历日期选择
-                    formField(title: "农历生日") {
+                    formField(title: LocalizedString.calendar("lunar_birthday")) {
                         VStack(spacing: 12) {
                             // 闰月开关
                             Toggle(isOn: $isLeapMonth) {
-                                Text("闰月")
+                                Text(LocalizedString.calendar("leap_month"))
                                     .font(.system(size: 12))
                             }
                             .toggleStyle(.switch)
@@ -131,7 +153,7 @@ struct BirthdayAddView: View {
 
                             // 月份选择
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("月份")
+                                Text(LocalizedString.calendar("month"))
                                     .font(.system(size: 10, weight: .medium))
                                     .foregroundStyle(AppTheme.textSecondary(colorScheme))
 
@@ -144,7 +166,7 @@ struct BirthdayAddView: View {
 
                             // 日期选择
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("日期")
+                                Text(LocalizedString.calendar("date"))
                                     .font(.system(size: 10, weight: .medium))
                                     .foregroundStyle(AppTheme.textSecondary(colorScheme))
 
@@ -158,8 +180,8 @@ struct BirthdayAddView: View {
                     }
 
                     // 备注
-                    formField(title: "备注（可选）") {
-                        AppKitTextField(text: $note, placeholder: "如：妈妈、朋友")
+                    formField(title: settings.language == .english ? "\(LocalizedString.calendar("note")) (\(LocalizedString.common("optional")))" : "\(LocalizedString.calendar("note"))（\(LocalizedString.common("optional"))）") {
+                        AppKitTextField(text: $note, placeholder: LocalizedString.calendar("note_placeholder"))
                             .frame(height: 24)
                     }
 
@@ -182,7 +204,7 @@ struct BirthdayAddView: View {
 
     private var headerView: some View {
         HStack {
-            Text(existingBirthday == nil ? "添加生日" : "编辑生日")
+            Text(existingBirthday == nil ? LocalizedString.calendar("add_birthday") : LocalizedString.calendar("edit_birthday"))
                 .font(.system(size: 14, weight: .semibold))
             Spacer()
         }
@@ -255,7 +277,7 @@ struct BirthdayAddView: View {
 
     private var previewSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("预览")
+            Text(LocalizedString.calendar("preview"))
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(AppTheme.textPrimary(colorScheme))
 
@@ -265,7 +287,7 @@ struct BirthdayAddView: View {
                     .foregroundStyle(AppTheme.warning)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(name.isEmpty ? "未命名" : name)
+                    Text(name.isEmpty ? LocalizedString.calendar("unnamed") : name)
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary(colorScheme))
 
@@ -289,7 +311,7 @@ struct BirthdayAddView: View {
     private var bottomButtons: some View {
         HStack(spacing: 12) {
             Button(action: { dismiss() }) {
-                Text("取消")
+                Text(LocalizedString.common("cancel"))
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(AppTheme.textSecondary(colorScheme))
                     .frame(maxWidth: .infinity)
@@ -302,7 +324,7 @@ struct BirthdayAddView: View {
             .buttonStyle(.plain)
 
             Button(action: save) {
-                Text("保存")
+                Text(LocalizedString.common("save"))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -361,6 +383,7 @@ struct BirthdayAddView: View {
 struct BirthdayListView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var settings = AppSettings.shared
     @State private var birthdays: [Birthday] = []
     @State private var showAddView = false
     @State private var editingBirthday: Birthday?
@@ -413,12 +436,12 @@ struct BirthdayListView: View {
 
     private var headerView: some View {
         HStack {
-            Text("生日管理")
+            Text(LocalizedString.calendar("birthday_manage"))
                 .font(.system(size: 14, weight: .semibold))
 
             Spacer()
 
-            Text("\(birthdays.count) 个生日")
+            Text("\(birthdays.count) \(LocalizedString.calendar("birthday"))")
                 .font(.system(size: 11))
                 .foregroundStyle(AppTheme.textSecondary(colorScheme))
 
@@ -442,11 +465,11 @@ struct BirthdayListView: View {
                 .font(.system(size: 36))
                 .foregroundStyle(AppTheme.textSecondary(colorScheme).opacity(0.5))
 
-            Text("还没有记录生日")
+            Text(LocalizedString.calendar("empty_birthday", lang: settings.language))
                 .font(.system(size: 13))
                 .foregroundStyle(AppTheme.textSecondary(colorScheme))
 
-            Text("点击下方按钮添加第一个生日")
+            Text(LocalizedString.calendar("add_first_birthday", lang: settings.language))
                 .font(.system(size: 11))
                 .foregroundStyle(AppTheme.textSecondary(colorScheme).opacity(0.7))
         }
@@ -516,7 +539,7 @@ struct BirthdayListView: View {
             HStack(spacing: 6) {
                 Image(systemName: "plus.circle.fill")
                     .font(.system(size: 14))
-                Text("添加生日")
+                Text(LocalizedString.calendar("add_birthday", lang: settings.language))
                     .font(.system(size: 12, weight: .medium))
             }
             .foregroundStyle(AppTheme.healthy)
@@ -553,6 +576,7 @@ struct BirthdayDetailView: View {
     let date: Date
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
         VStack(spacing: 0) {
@@ -562,7 +586,7 @@ struct BirthdayDetailView: View {
                     .font(.system(size: 16))
                     .foregroundStyle(AppTheme.warning)
 
-                Text("生日提醒")
+                Text(LocalizedString.calendar("birthday_reminder", lang: settings.language))
                     .font(.system(size: 14, weight: .semibold))
 
                 Spacer()
@@ -592,7 +616,7 @@ struct BirthdayDetailView: View {
 
                 Spacer()
 
-                Text("农历")
+                Text(LocalizedString.calendar("lunar", lang: settings.language))
                     .font(.system(size: 10, weight: .medium))
                     .foregroundStyle(AppTheme.textSecondary(colorScheme))
                     .padding(.horizontal, 6)
@@ -655,7 +679,7 @@ struct BirthdayDetailView: View {
 
             // 关闭按钮
             Button(action: { dismiss() }) {
-                Text("知道了")
+                Text(LocalizedString.calendar("got_it", lang: settings.language))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -675,7 +699,9 @@ struct BirthdayDetailView: View {
 
     private var formattedDate: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy年M月d日"
+        let lang = settings.language
+        formatter.dateFormat = lang == .english ? "MMM d, yyyy" : "yyyy年M月d日"
+        formatter.locale = Locale(identifier: lang.rawValue)
         return formatter.string(from: date)
     }
 }

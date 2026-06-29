@@ -97,10 +97,13 @@ enum MenuBarDisplayMode: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var displayName: String {
+    func displayName(lang: AppLanguage? = nil) -> String {
+        let currentLang = lang ?? AppSettings.shared.language
         switch self {
-        case .goldPrice: return "金价"
-        case .date: return "日期"
+        case .goldPrice:
+            return currentLang == .english ? "Gold Price" : "金价"
+        case .date:
+            return currentLang == .english ? "Date" : "日期"
         }
     }
 
@@ -133,6 +136,8 @@ enum LocalizedString {
             return currentLang == .english ? "Close" : "关闭"
         case "done":
             return currentLang == .english ? "Done" : "完成"
+        case "optional":
+            return currentLang == .english ? "Optional" : "可选"
         default:
             return key
         }
@@ -224,6 +229,76 @@ enum LocalizedString {
         }
     }
 
+    // 菜单栏
+    static func menuBar(_ key: String, lang: AppLanguage? = nil) -> String {
+        let currentLang = lang ?? AppSettings.shared.language
+        switch key {
+        case "gold_price":
+            return currentLang == .english ? "Gold Price" : "金价"
+        case "date":
+            return currentLang == .english ? "Date" : "日期"
+        case "settings":
+            return currentLang == .english ? "Settings" : "设置"
+        case "quit":
+            return currentLang == .english ? "Quit" : "退出程序"
+        default:
+            return key
+        }
+    }
+
+    // 电池状态
+    static func batteryState(_ key: String, lang: AppLanguage? = nil) -> String {
+        let currentLang = lang ?? AppSettings.shared.language
+        switch key {
+        case "unknown":
+            return currentLang == .english ? "Unknown" : "未知"
+        case "unplugged":
+            return currentLang == .english ? "Battery" : "电池供电"
+        case "charging":
+            return currentLang == .english ? "Charging" : "充电中"
+        case "full":
+            return currentLang == .english ? "Full" : "已充满"
+        case "no_battery":
+            return currentLang == .english ? "No Battery" : "无电池"
+        default:
+            return key
+        }
+    }
+
+    // 内存压力
+    static func memoryPressure(_ key: String, lang: AppLanguage? = nil) -> String {
+        let currentLang = lang ?? AppSettings.shared.language
+        switch key {
+        case "low":
+            return currentLang == .english ? "Low" : "轻"
+        case "medium":
+            return currentLang == .english ? "Medium" : "中"
+        case "high":
+            return currentLang == .english ? "High" : "高"
+        default:
+            return key
+        }
+    }
+
+    // 通用标签
+    static func label(_ key: String, lang: AppLanguage? = nil) -> String {
+        let currentLang = lang ?? AppSettings.shared.language
+        switch key {
+        case "copy_hint":
+            return currentLang == .english ? "Click to copy" : "点击复制"
+        case "on":
+            return currentLang == .english ? "On" : "开启"
+        case "off":
+            return currentLang == .english ? "Off" : "关闭"
+        case "enabled":
+            return currentLang == .english ? "Enabled" : "已启用"
+        case "disabled":
+            return currentLang == .english ? "Disabled" : "已禁用"
+        default:
+            return key
+        }
+    }
+
     // 日历
     static func calendar(_ key: String, lang: AppLanguage? = nil) -> String {
         let currentLang = lang ?? AppSettings.shared.language
@@ -260,42 +335,84 @@ enum LocalizedString {
             return currentLang == .english ? "Solar Term" : "节气"
         case "festival":
             return currentLang == .english ? "Festival" : "节日"
+        case "year":
+            return currentLang == .english ? "Year" : "年份"
+        case "month":
+            return currentLang == .english ? "Month" : "月份"
+        case "date":
+            return currentLang == .english ? "Date" : "日期"
+        case "holiday":
+            return currentLang == .english ? "Off" : "休"
+        case "workday":
+            return currentLang == .english ? "Work" : "班"
+        case "lunar":
+            return currentLang == .english ? "Lunar" : "农历"
+        case "empty_birthday":
+            return currentLang == .english ? "No birthdays recorded" : "还没有记录生日"
+        case "add_first_birthday":
+            return currentLang == .english ? "Add your first birthday below" : "点击下方按钮添加第一个生日"
+        case "birthday_reminder":
+            return currentLang == .english ? "Birthday Reminder" : "生日提醒"
+        case "got_it":
+            return currentLang == .english ? "Got it" : "知道了"
+        case "select_year_month_help":
+            return currentLang == .english ? "Click to select year/month" : "点击选择年月"
+        case "unnamed":
+            return currentLang == .english ? "Unnamed" : "未命名"
+        case "preview":
+            return currentLang == .english ? "Preview" : "预览"
+        case "and_more":
+            return currentLang == .english ? " etc." : "等"
         default:
             return key
         }
     }
 
-    // 菜单栏
-    static func menuBar(_ key: String, lang: AppLanguage? = nil) -> String {
+    // 数据管理
+    static func data(_ key: String, lang: AppLanguage? = nil) -> String {
+        let currentLang = lang ?? AppSettings.shared.language
+        switch key {
+        case "holiday_data":
+            return currentLang == .english ? "Holiday Data" : "节假日数据"
+        case "holiday_data_desc":
+            return currentLang == .english ? "Manage holiday and workday arrangements" : "管理节假日和调休安排数据"
+        case "data_version":
+            return currentLang == .english ? "Data Version" : "数据版本"
+        case "record_count":
+            return currentLang == .english ? "Records" : "条记录"
+        case "last_update":
+            return currentLang == .english ? "Last Update" : "最后更新"
+        case "update_data":
+            return currentLang == .english ? "Update Data" : "更新数据"
+        case "updating":
+            return currentLang == .english ? "Updating..." : "更新中..."
+        case "update_success":
+            return currentLang == .english ? "Data updated to latest version!" : "数据已更新到最新版本！"
+        case "update_failed":
+            return currentLang == .english ? "Update failed" : "更新失败"
+        case "data_note":
+            return currentLang == .english ? "Data Note" : "数据说明"
+        case "data_note_content":
+            return currentLang == .english ? "• Includes 2024-2026 statutory holidays\n• Includes workday arrangements\n• Data from State Council Office" : "• 包含2024-2026年法定节假日\n• 包含调休工作日安排\n• 数据来源于国务院办公厅通知"
+        default:
+            return key
+        }
+    }
+
+    // 金价
+    static func goldPrice(_ key: String, lang: AppLanguage? = nil) -> String {
         let currentLang = lang ?? AppSettings.shared.language
         switch key {
         case "gold_price":
-            return currentLang == .english ? "Gold Price" : "金价"
-        case "date":
-            return currentLang == .english ? "Date" : "日期"
-        case "settings":
-            return currentLang == .english ? "Settings" : "设置"
-        case "quit":
-            return currentLang == .english ? "Quit" : "退出程序"
-        default:
-            return key
-        }
-    }
-
-    // 电池状态
-    static func batteryState(_ key: String, lang: AppLanguage? = nil) -> String {
-        let currentLang = lang ?? AppSettings.shared.language
-        switch key {
-        case "unknown":
-            return currentLang == .english ? "Unknown" : "未知"
-        case "unplugged":
-            return currentLang == .english ? "Battery" : "电池供电"
-        case "charging":
-            return currentLang == .english ? "Charging" : "充电中"
-        case "full":
-            return currentLang == .english ? "Full" : "已充满"
-        case "no_battery":
-            return currentLang == .english ? "No Battery" : "无电池"
+            return currentLang == .english ? "Gold" : "金价"
+        case "loading":
+            return currentLang == .english ? "Loading..." : "--"
+        case "rate_limited":
+            return currentLang == .english ? "Rate Limited" : "限频"
+        case "network_error":
+            return currentLang == .english ? "Network Error" : "网络失败"
+        case "parse_error":
+            return currentLang == .english ? "Parse Error" : "解析失败"
         default:
             return key
         }

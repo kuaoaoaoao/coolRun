@@ -87,6 +87,7 @@ struct ContentView: View {
                                 .fill(AppTheme.healthy.opacity(0.15))
                         }
                     }
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
@@ -234,11 +235,12 @@ private struct CPUSection: View {
     let metrics: CPUMetrics
     let temperature: TemperatureMetrics
     var history: MetricHistory = MetricHistory()
+    @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
         CollapsibleSection(
             icon: "cpu",
-            title: "CPU",
+            title: LocalizedString.monitor("cpu", lang: settings.language),
             value: metrics.usage.percentText,
             healthColor: AppTheme.healthColor(for: metrics.usage)
         ) {
@@ -251,12 +253,12 @@ private struct CPUSection: View {
                     .font(.system(size: 12, weight: .semibold, design: .monospaced))
             }
         } content: {
-            MetricRow(label: "核心数", value: "\(metrics.coreCount)")
+            MetricRow(label: LocalizedString.monitor("core_count", lang: settings.language), value: "\(metrics.coreCount)")
             if let temp = temperature.cpuTemperature {
-                MetricRow(label: "CPU 温度", value: String(format: "%.1f°C", temp))
+                MetricRow(label: LocalizedString.monitor("cpu_temp", lang: settings.language), value: String(format: "%.1f°C", temp))
             }
             if let gpuTemp = temperature.gpuTemperature {
-                MetricRow(label: "GPU 温度", value: String(format: "%.1f°C", gpuTemp))
+                MetricRow(label: LocalizedString.monitor("gpu_temp", lang: settings.language), value: String(format: "%.1f°C", gpuTemp))
             }
             SparklineChart(values: history.values, color: AppTheme.healthColor(for: metrics.usage))
                 .frame(height: 20)
@@ -268,11 +270,12 @@ private struct CPUSection: View {
 private struct MemorySection: View {
     let metrics: MemoryMetrics
     var history: MetricHistory = MetricHistory()
+    @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
         CollapsibleSection(
             icon: "memorychip",
-            title: "内存",
+            title: LocalizedString.monitor("memory", lang: settings.language),
             value: metrics.usage.percentText,
             healthColor: AppTheme.healthColor(for: metrics.usage)
         ) {
@@ -284,9 +287,9 @@ private struct MemorySection: View {
                     .font(.system(size: 12, weight: .semibold, design: .monospaced))
             }
         } content: {
-            MetricRow(label: "已用", value: metrics.used.memoryText)
-            MetricRow(label: "总量", value: metrics.total.memoryText)
-            MetricRow(label: "压力", value: memoryPressureText)
+            MetricRow(label: LocalizedString.monitor("used", lang: settings.language), value: metrics.used.memoryText)
+            MetricRow(label: LocalizedString.monitor("total", lang: settings.language), value: metrics.total.memoryText)
+            MetricRow(label: LocalizedString.monitor("pressure", lang: settings.language), value: memoryPressureText)
             SparklineChart(values: history.values, color: AppTheme.healthColor(for: metrics.usage))
                 .frame(height: 20)
                 .padding(.top, 2)
@@ -295,9 +298,9 @@ private struct MemorySection: View {
 
     private var memoryPressureText: String {
         switch metrics.usage {
-        case 0..<0.6: "轻"
-        case 0..<0.82: "中"
-        default: "高"
+        case 0..<0.6: LocalizedString.memoryPressure("low", lang: settings.language)
+        case 0..<0.82: LocalizedString.memoryPressure("medium", lang: settings.language)
+        default: LocalizedString.memoryPressure("high", lang: settings.language)
         }
     }
 }
@@ -305,9 +308,10 @@ private struct MemorySection: View {
 private struct StorageSection: View {
     let metrics: StorageMetrics
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
-        CollapsibleSection(icon: "externaldrive", title: "储存", value: metrics.usage.percentText) {
+        CollapsibleSection(icon: "externaldrive", title: LocalizedString.monitor("storage", lang: settings.language), value: metrics.usage.percentText) {
             HStack(spacing: 6) {
                 ProgressPill(value: metrics.usage, tint: .blue)
                     .frame(width: 40, height: 4)
@@ -316,23 +320,34 @@ private struct StorageSection: View {
                     .font(.system(size: 11, weight: .semibold, design: .monospaced))
             }
         } content: {
-            MetricRow(label: "已用", value: metrics.used.storageText)
-            MetricRow(label: "可用", value: metrics.available.storageText)
+            MetricRow(label: LocalizedString.monitor("used", lang: settings.language), value: metrics.used.storageText)
+            MetricRow(label: LocalizedString.monitor("available", lang: settings.language), value: metrics.available.storageText)
         }
     }
 }
 
 private struct BatterySection: View {
     let metrics: BatteryMetrics
+    @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
-        CollapsibleSection(icon: batteryIcon, title: "电池", value: levelText) {
+        CollapsibleSection(icon: batteryIcon, title: LocalizedString.monitor("battery", lang: settings.language), value: levelText) {
             Text(levelText)
                 .foregroundStyle(batteryColor)
                 .font(.system(size: 12, weight: .semibold, design: .monospaced))
         } content: {
-            MetricRow(label: "状态", value: metrics.state.rawValue)
-            MetricRow(label: "低电量模式", value: metrics.isLowPowerModeEnabled ? "开启" : "关闭")
+            MetricRow(label: LocalizedString.monitor("status", lang: settings.language), value: batteryStateText)
+            MetricRow(label: LocalizedString.monitor("low_power", lang: settings.language), value: metrics.isLowPowerModeEnabled ? LocalizedString.label("on", lang: settings.language) : LocalizedString.label("off", lang: settings.language))
+        }
+    }
+
+    private var batteryStateText: String {
+        switch metrics.state {
+        case .unknown: return LocalizedString.batteryState("unknown", lang: settings.language)
+        case .unplugged: return LocalizedString.batteryState("unplugged", lang: settings.language)
+        case .charging: return LocalizedString.batteryState("charging", lang: settings.language)
+        case .full: return LocalizedString.batteryState("full", lang: settings.language)
+        case .noBattery: return LocalizedString.batteryState("no_battery", lang: settings.language)
         }
     }
 
@@ -363,20 +378,21 @@ private struct NetworkSection: View {
     let metrics: NetworkMetrics
     var downloadHistory: MetricHistory = MetricHistory()
     var uploadHistory: MetricHistory = MetricHistory()
+    @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
-        CollapsibleSection(icon: "network", title: "网络", value: networkName) {
+        CollapsibleSection(icon: "network", title: LocalizedString.monitor("network", lang: settings.language), value: networkName) {
             if metrics.downloadSpeed > 0 || metrics.uploadSpeed > 0 {
                 Text("↓\(formatSpeed(metrics.downloadSpeed))")
                     .foregroundStyle(.blue)
                     .font(.system(size: 10, weight: .medium, design: .monospaced))
             }
         } content: {
-            MetricRow(label: "本地 IP", value: localAddressText)
-            MetricRow(label: "接口", value: metrics.activeInterfaceCount > 0 ? "\(metrics.activeInterfaceCount) 个" : "--")
+            MetricRow(label: LocalizedString.monitor("local_ip", lang: settings.language), value: localAddressText)
+            MetricRow(label: LocalizedString.monitor("interfaces", lang: settings.language), value: metrics.activeInterfaceCount > 0 ? "\(metrics.activeInterfaceCount)" : "--")
             if metrics.downloadSpeed > 0 || metrics.uploadSpeed > 0 {
-                MetricRow(label: "↓ 下载", value: formatSpeed(metrics.downloadSpeed))
-                MetricRow(label: "↑ 上传", value: formatSpeed(metrics.uploadSpeed))
+                MetricRow(label: "↓ \(LocalizedString.monitor("download", lang: settings.language))", value: formatSpeed(metrics.downloadSpeed))
+                MetricRow(label: "↑ \(LocalizedString.monitor("upload", lang: settings.language))", value: formatSpeed(metrics.uploadSpeed))
                 DualSparklineChart(
                     values1: downloadHistory.values,
                     values2: uploadHistory.values,
@@ -390,7 +406,7 @@ private struct NetworkSection: View {
     }
 
     private var networkName: String {
-        metrics.activeInterfaceCount > 0 ? "已连接" : "未连接"
+        metrics.activeInterfaceCount > 0 ? LocalizedString.monitor("connected", lang: settings.language) : LocalizedString.monitor("disconnected", lang: settings.language)
     }
 
     private var localAddressText: String {
@@ -411,9 +427,10 @@ private struct NetworkSection: View {
 private struct UptimeSection: View {
     let metrics: UptimeMetrics
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
-        CollapsibleSection(icon: "clock", title: "运行时间", value: metrics.compactFormatted) {
+        CollapsibleSection(icon: "clock", title: LocalizedString.monitor("uptime", lang: settings.language), value: metrics.compactFormatted) {
             Text(metrics.compactFormatted)
                 .foregroundStyle(AppTheme.textPrimary(colorScheme).opacity(0.8))
                 .font(.system(size: 11, weight: .medium, design: .monospaced))
@@ -421,7 +438,7 @@ private struct UptimeSection: View {
                 .minimumScaleFactor(0.7)
                 .frame(minWidth: 50, alignment: .trailing)
         } content: {
-            MetricRow(label: "已运行", value: metrics.formatted)
+            MetricRow(label: LocalizedString.monitor("running_time", lang: settings.language), value: metrics.formatted)
         }
     }
 }
@@ -433,6 +450,7 @@ private struct MetricRow: View {
     let value: String
     @State private var isCopied = false
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
         HStack(spacing: 6) {
@@ -446,9 +464,10 @@ private struct MetricRow: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
         }
-        .padding(.vertical, 1)
+        .padding(.vertical, 4)
+        .contentShape(Rectangle())
         .onTapGesture { copyToClipboard() }
-        .help("点击复制")
+        .help(LocalizedString.label("copy_hint", lang: settings.language))
     }
 
     private func copyToClipboard() {

@@ -12,7 +12,19 @@ struct CalendarView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     private let calendar = Calendar.current
-    private let weekdaySymbols = ["日", "一", "二", "三", "四", "五", "六"]
+    private var weekdaySymbols: [String] {
+        let lang = AppSettings.shared.language
+        switch lang {
+        case .english:
+            return ["S", "M", "T", "W", "T", "F", "S"]
+        case .japanese:
+            return ["日", "月", "火", "水", "木", "金", "土"]
+        case .korean:
+            return ["일", "월", "화", "수", "목", "금", "토"]
+        default:
+            return ["日", "一", "二", "三", "四", "五", "六"]
+        }
+    }
     private let holidayService = HolidayService.shared
 
     var body: some View {
@@ -93,7 +105,7 @@ struct CalendarView: View {
                 }
             }
             .buttonStyle(.plain)
-            .help("点击选择年月")
+            .help(LocalizedString.calendar("select_year_month_help"))
 
             Spacer()
 
@@ -104,7 +116,7 @@ struct CalendarView: View {
                     .foregroundStyle(AppTheme.warning)
             }
             .buttonStyle(.plain)
-            .help("生日管理")
+            .help(LocalizedString.calendar("birthday_manage"))
 
             // 下一月
             Button(action: { changeMonth(by: 1) }) {
@@ -193,7 +205,7 @@ struct CalendarView: View {
 
                 // 右上角休/班标记
                 if isHoliday {
-                    Text("休")
+                    Text(LocalizedString.calendar("holiday"))
                         .font(.system(size: 7, weight: .bold))
                         .foregroundStyle(.white)
                         .padding(1)
@@ -203,7 +215,7 @@ struct CalendarView: View {
                         }
                         .offset(x: 2, y: -2)
                 } else if isWorkday {
-                    Text("班")
+                    Text(LocalizedString.calendar("workday"))
                         .font(.system(size: 7, weight: .bold))
                         .foregroundStyle(.white)
                         .padding(1)
@@ -282,7 +294,7 @@ struct CalendarView: View {
                 // 节假日标记
                 if let holiday = holidayInfo {
                     HStack(spacing: 4) {
-                        Text(holiday.type == .holiday ? "休" : "班")
+                        Text(holiday.type == .holiday ? LocalizedString.calendar("holiday") : LocalizedString.calendar("workday"))
                             .font(.system(size: 10, weight: .bold))
                             .foregroundStyle(.white)
                             .padding(.horizontal, 4)
@@ -315,12 +327,12 @@ struct CalendarView: View {
                         .foregroundStyle(AppTheme.textPrimary(colorScheme))
 
                     HStack(spacing: 6) {
-                        Text("生肖：\(lunarDate.zodiac)")
+                        Text("\(LocalizedString.calendar("zodiac")): \(lunarDate.zodiac)")
                             .font(.system(size: 10))
                             .foregroundStyle(AppTheme.textSecondary(colorScheme))
 
                         if let term = lunarDate.solarTerm {
-                            Text("节气：\(term)")
+                            Text("\(LocalizedString.calendar("solar_term")): \(term)")
                                 .font(.system(size: 10))
                                 .foregroundStyle(AppTheme.warning)
                         }
@@ -375,7 +387,9 @@ struct CalendarView: View {
 
     private var monthYearText: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy年M月"
+        let lang = AppSettings.shared.language
+        formatter.dateFormat = lang == .english ? "MMM yyyy" : "yyyy年M月"
+        formatter.locale = Locale(identifier: lang.rawValue)
         return formatter.string(from: currentMonth)
     }
 
@@ -390,8 +404,9 @@ struct CalendarView: View {
 
     private var selectedDateFormatted: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy年M月d日 EEEE"
-        formatter.locale = Locale(identifier: "zh_CN")
+        let lang = AppSettings.shared.language
+        formatter.dateFormat = lang == .english ? "EEEE, MMM d, yyyy" : "yyyy年M月d日 EEEE"
+        formatter.locale = Locale(identifier: lang.rawValue)
         return formatter.string(from: selectedDate)
     }
 
@@ -525,7 +540,7 @@ struct CalendarView: View {
         if birthdays.count == 1 {
             return birthdays[0].name
         } else {
-            return birthdays[0].name + "等"
+            return birthdays[0].name + LocalizedString.calendar("and_more")
         }
     }
 }
@@ -553,13 +568,30 @@ struct YearMonthPickerView: View {
     @Binding var currentMonth: Date
     @Binding var isPresented: Bool
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var settings = AppSettings.shared
 
     @State private var selectedYear: Int
     @State private var selectedMonth: Int
 
     private let calendar = Calendar.current
-    private let months = ["1月", "2月", "3月", "4月", "5月", "6月",
-                           "7月", "8月", "9月", "10月", "11月", "12月"]
+
+    private var months: [String] {
+        let lang = settings.language
+        switch lang {
+        case .english:
+            return ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        case .japanese:
+            return ["1月", "2月", "3月", "4月", "5月", "6月",
+                    "7月", "8月", "9月", "10月", "11月", "12月"]
+        case .korean:
+            return ["1월", "2월", "3월", "4월", "5월", "6월",
+                    "7월", "8월", "9월", "10월", "11월", "12월"]
+        default:
+            return ["1月", "2月", "3月", "4月", "5月", "6月",
+                    "7月", "8月", "9月", "10月", "11月", "12月"]
+        }
+    }
 
     // 年份范围：前后50年
     private var years: [Int] {
@@ -607,14 +639,14 @@ struct YearMonthPickerView: View {
 
     private var headerView: some View {
         HStack {
-            Text("选择年月")
+            Text(LocalizedString.calendar("select_year_month"))
                 .font(.system(size: 14, weight: .semibold))
 
             Spacer()
 
             // 今天按钮
             Button(action: goToToday) {
-                Text("今天")
+                Text(LocalizedString.calendar("today"))
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(AppTheme.healthy)
                     .padding(.horizontal, 8)
@@ -634,7 +666,7 @@ struct YearMonthPickerView: View {
 
     private var yearSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("年份")
+            Text(LocalizedString.calendar("year"))
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(AppTheme.textSecondary(colorScheme))
                 .padding(.horizontal, 16)
@@ -686,7 +718,7 @@ struct YearMonthPickerView: View {
 
     private var monthSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("月份")
+            Text(LocalizedString.calendar("month"))
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(AppTheme.textSecondary(colorScheme))
                 .padding(.horizontal, 16)
@@ -731,7 +763,7 @@ struct YearMonthPickerView: View {
     private var bottomButtons: some View {
         HStack(spacing: 12) {
             Button(action: { isPresented = false }) {
-                Text("取消")
+                Text(LocalizedString.common("cancel", lang: settings.language))
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(AppTheme.textSecondary(colorScheme))
                     .frame(maxWidth: .infinity)
@@ -744,7 +776,7 @@ struct YearMonthPickerView: View {
             .buttonStyle(.plain)
 
             Button(action: confirmSelection) {
-                Text("确定")
+                Text(LocalizedString.common("confirm", lang: settings.language))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)

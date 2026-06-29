@@ -117,7 +117,7 @@ struct SettingsView: View {
                 }
             }
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 16)
         .padding(.vertical, 10)
     }
 
@@ -329,7 +329,8 @@ private struct CategoryTab: View {
                     .font(.system(size: 10, weight: .medium))
                     .foregroundStyle(isSelected ? Color.accentColor : .secondary)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .contentShape(Rectangle())
             .padding(.vertical, 8)
             .background {
                 if isSelected {
@@ -395,14 +396,15 @@ private struct HolidayUpdateCard: View {
     @State private var updateMessage: String?
     @State private var updateSuccess = false
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var settings = AppSettings.shared
 
     private let holidayService = HolidayService.shared
 
     var body: some View {
         SettingsCard(
             icon: "calendar.badge.clock",
-            title: "节假日数据",
-            description: "管理节假日和调休安排数据"
+            title: LocalizedString.data("holiday_data", lang: settings.language),
+            description: LocalizedString.data("holiday_data_desc", lang: settings.language)
         ) {
             VStack(spacing: 12) {
                 // 状态信息
@@ -414,7 +416,7 @@ private struct HolidayUpdateCard: View {
                                 .font(.system(size: 12))
                                 .foregroundStyle(.green)
 
-                            Text("数据版本：v\(holidayService.getCurrentVersion())")
+                            Text("\(LocalizedString.data("data_version", lang: settings.language)): v\(holidayService.getCurrentVersion())")
                                 .font(.system(size: 12, weight: .medium))
                         }
 
@@ -424,7 +426,7 @@ private struct HolidayUpdateCard: View {
                                 .font(.system(size: 12))
                                 .foregroundStyle(.secondary)
 
-                            Text("包含 \(holidayService.getCachedDataCount()) 条节假日记录")
+                            Text("\(holidayService.getCachedDataCount()) \(LocalizedString.data("record_count", lang: settings.language))")
                                 .font(.system(size: 11))
                                 .foregroundStyle(.secondary)
                         }
@@ -436,7 +438,7 @@ private struct HolidayUpdateCard: View {
                                     .font(.system(size: 12))
                                     .foregroundStyle(.secondary)
 
-                                Text("最后更新：\(formatDate(lastUpdate))")
+                                Text("\(LocalizedString.data("last_update", lang: settings.language)): \(formatDate(lastUpdate))")
                                     .font(.system(size: 11))
                                     .foregroundStyle(.secondary)
                             }
@@ -457,7 +459,7 @@ private struct HolidayUpdateCard: View {
                                     .font(.system(size: 12, weight: .medium))
                             }
 
-                            Text(isUpdating ? "更新中..." : "更新数据")
+                            Text(isUpdating ? LocalizedString.data("updating", lang: settings.language) : LocalizedString.data("update_data", lang: settings.language))
                                 .font(.system(size: 12, weight: .medium))
                         }
                         .foregroundStyle(.white)
@@ -492,11 +494,11 @@ private struct HolidayUpdateCard: View {
 
                 // 说明文字
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("数据说明：")
+                    Text("\(LocalizedString.data("data_note", lang: settings.language)):")
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.secondary)
 
-                    Text("• 包含2024-2026年法定节假日\n• 包含调休工作日安排\n• 数据来源于国务院办公厅通知")
+                    Text(LocalizedString.data("data_note_content", lang: settings.language))
                         .font(.system(size: 10))
                         .foregroundStyle(.secondary)
                 }
@@ -518,7 +520,7 @@ private struct HolidayUpdateCard: View {
                 await MainActor.run {
                     isUpdating = false
                     updateSuccess = true
-                    updateMessage = "数据已更新到最新版本！"
+                    updateMessage = LocalizedString.data("update_success", lang: settings.language)
 
                     // 3秒后清除消息
                     DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
@@ -529,7 +531,7 @@ private struct HolidayUpdateCard: View {
                 await MainActor.run {
                     isUpdating = false
                     updateSuccess = false
-                    updateMessage = "更新失败：\(error.localizedDescription)"
+                    updateMessage = "\(LocalizedString.data("update_failed", lang: settings.language)): \(error.localizedDescription)"
 
                     // 5秒后清除消息
                     DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
@@ -572,8 +574,7 @@ private struct LanguageRow: View {
                         .foregroundStyle(Color.accentColor)
                 }
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, minHeight: 36)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -625,6 +626,7 @@ private struct MenuBarDisplayRow: View {
     let mode: MenuBarDisplayMode
     let isSelected: Bool
     let action: () -> Void
+    @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
         Button(action: action) {
@@ -635,7 +637,7 @@ private struct MenuBarDisplayRow: View {
                     .frame(width: 20)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(mode.displayName)
+                    Text(mode.displayName(lang: settings.language))
                         .font(.system(size: 13))
                         .foregroundStyle(.primary)
 
@@ -652,8 +654,7 @@ private struct MenuBarDisplayRow: View {
                         .foregroundStyle(Color.accentColor)
                 }
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, minHeight: 44)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -662,9 +663,9 @@ private struct MenuBarDisplayRow: View {
     private var modeDescription: String {
         switch mode {
         case .goldPrice:
-            return LocalizedString.menuBar("gold_price")
+            return LocalizedString.menuBar("gold_price", lang: settings.language)
         case .date:
-            return LocalizedString.menuBar("date")
+            return LocalizedString.menuBar("date", lang: settings.language)
         }
     }
 }
@@ -726,8 +727,7 @@ private struct LinkRow: View {
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.tertiary)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, minHeight: 36)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

@@ -16,7 +16,7 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
     private var goldPriceTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
     private var coinPhase = 0.0
-    private var goldPriceText = "金价 --"
+    private var goldPriceText = "--"
     private let goldPriceRefreshInterval: Duration = .seconds(1)
     private let iconFramesPerSecond = 30.0
 
@@ -200,7 +200,7 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
             let quote = try await goldPriceService.fetchCNYPerGram()
             goldPriceText = quote.cnyPerGram.goldPriceText
         } catch {
-            if goldPriceText == "金价 --" {
+            if goldPriceText == "--" {
                 goldPriceText = goldPriceFallbackText(for: error)
             }
         }
@@ -210,12 +210,12 @@ final class MacAppDelegate: NSObject, NSApplicationDelegate {
     private func goldPriceFallbackText(for error: Error) -> String {
         let message = error.localizedDescription.lowercased()
         if message.contains("frequency") || message.contains("rate") || message.contains("call") {
-            return "金价限频"
+            return LocalizedString.goldPrice("rate_limited")
         }
         if message.contains("internet") || message.contains("network") || message.contains("offline") {
-            return "金价网络失败"
+            return LocalizedString.goldPrice("network_error")
         }
-        return "金价解析失败"
+        return LocalizedString.goldPrice("parse_error")
     }
 }
 
